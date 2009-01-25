@@ -1,0 +1,38 @@
+<project default="build-all" basedir=".">
+
+  <property name="app.type" value="avatar"/>
+
+  <import file="../build-import.xml"/>
+
+  <target name="build-klass">
+    <echo message="Building ${klass.name}" />
+
+    <filter token="KLASS" value="${klass.name}" />
+    <copy file="Player.as" tofile="Player_${klass.name}.as" filtering="true" overwrite="true" />
+    <antcall target="build">
+      <param name="app.name" value="Player_${klass.name}" />
+    </antcall>
+    <delete file="Player_${klass.name}.as" />
+  </target>
+
+  <target name="test-klass" depends="build-klass">
+    <antcall target="test-only">
+      <param name="app.name" value="Player_${klass.name}" />
+    </antcall>
+  </target>
+
+  <target name="build-all">
+    <!-- Move ant-contrib.jar to your ant lib dir. -->
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+    <property file="config.properties" />
+    <for list="${klasses.list}" param="klass">
+    <sequential>
+      <antcall target="build-klass">
+        <param name="klass.name" value="@{klass}" />
+      </antcall>
+    </sequential>
+    </for>
+  </target>
+
+</project>

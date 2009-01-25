@@ -1,0 +1,9 @@
+Graphics:
+The RL Tiles - http://rltiles.sourceforge.net/
+
+Sound Effects:
+Battle for Wesnoth - http://www.wesnoth.org/
+
+Trophy art:
+Doc's Military Icons - http://www.rw-designer.com/icon-set/mil-insignia-1/
+Buuf Deuce - http://www.deviantart.com/deviation/72080962/

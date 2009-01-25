@@ -1,0 +1,8 @@
+<project name="Wyvern" basedir=".">
+  <property environment="env" />
+  <property name="sdk.dir" value="${env.WHIRLED_HOME}" />
+
+  <property name="app.source-extras" value="../common"/>
+
+  <import file="${sdk.dir}/etc/project-include.xml"/>
+</project>
