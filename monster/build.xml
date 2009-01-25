@@ -1,0 +1,65 @@
+<project default="build-all">
+
+  <property name="app.type" value="pet"/>
+
+  <import file="../build-import.xml"/>
+
+  <target name="test-monster" depends="build-all">
+    <antcall target="test-only">
+      <param name="app.name" value="Monster_${monster.name}" />
+    </antcall>
+  </target>
+
+  <target name="build-monster">
+    <echo message="Building ${monster.name} (Level ${monster.level})" />
+
+    <filter token="MONSTER_NAME" value="${monster.name}" />
+    <filter token="MONSTER_LEVEL" value="${monster.level}" />
+    <filter token="SOUND_ATTACK" value="${monster.sound_attack}" />
+    <filter token="SOUND_COUNTER" value="${monster.sound_counter}" />
+    <filter token="SOUND_HEAL" value="${monster.sound_heal}" />
+    <filter token="SOUND_DEATH" value="${monster.sound_death}" />
+    <filter token="RANGE" value="${monster.range}" />
+    <copy file="Monster.as" tofile="Monster_${monster.name}.as" filtering="true" />
+    <antcall target="build">
+      <param name="app.name" value="Monster_${monster.name}" />
+    </antcall>
+    <delete file="Monster_${monster.name}.as" />
+
+    <echo message="Rendering thumbnail..." />
+    <exec executable="./thumb.sh">
+        <arg value="rsrc/${monster.name}.png" />
+        <arg value="Thumb_${monster.name}.png" />
+        <arg value="${monster.level}" />
+    </exec>
+  </target>
+
+  <target name="build-all">
+    <!-- Move ant-contrib.jar to your ant lib dir. -->
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
+    <property file="monsters.properties" />
+    <for list="${monsters.list}" param="monster">
+    <sequential>
+
+      <!-- Default properties -->
+      <property name="@{monster}.sound_attack" value="@{monster}_attack.mp3" />
+      <property name="@{monster}.sound_counter" value="@{monster}_counter.mp3" />
+      <property name="@{monster}.sound_heal" value="@{monster}_heal.mp3" />
+      <property name="@{monster}.sound_death" value="@{monster}_death.mp3" />
+      <property name="@{monster}.range" value="1" />
+
+      <antcall target="build-monster">
+        <param name="monster.name" value="@{monster}" />
+        <param name="monster.sound_attack" value="${@{monster}.sound_attack}" />
+        <param name="monster.sound_counter" value="${@{monster}.sound_counter}" />
+        <param name="monster.sound_heal" value="${@{monster}.sound_heal}" />
+        <param name="monster.sound_death" value="${@{monster}.sound_death}" />
+        <param name="monster.level" value="${@{monster}.level}" />
+        <param name="monster.range" value="${@{monster}.range}" />
+      </antcall>
+    </sequential>
+    </for>
+  </target>
+
+</project>
