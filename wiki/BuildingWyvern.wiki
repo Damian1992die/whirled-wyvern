@@ -1,0 +1,22 @@
+#summary Documentation on building the Wyvern core code.
+
+This applies to building the Wyvern code game, avatars and pets, as originally written by Aduros.
+
+= Requirements =
+
+ * Flex SDK
+ * Whirled SDK
+ * Ant
+
+For building Players:
+ * Ant-contrib
+
+For building Monsters:
+ * Ant-contrib
+ * Imagemagick (For generating the shop thumbnail. This is probably more trouble than it's  worth to get working on Windows, so just comment it out from Monster's build.xml)
+
+Then go to each module's directory (game, player, monster...) and run ant.
+
+= Halp! =
+
+There are pages on the Whirled wiki for using this kind of build environment. For Ant help, post to Whirled Coders. If you're reasonably sure you've come across a bug in the build scripts, contact Aduros.
