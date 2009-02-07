@@ -61,21 +61,21 @@ public class Thug
             var self :Object = WyvernUtil.self(ctrl);
             var damage :Number = WyvernUtil.getAttackDamage(self);
             var orient :Number = ctrl.getOrientation();
+            var bounds :Array = ctrl.getRoomBounds();
 
-            var rotate :Matrix = new Matrix();
-            rotate.translate(-here[0], -here[2]);
-            rotate.rotate((90-orient)*Math.PI/180);
+            var transform :Matrix = new Matrix();
+            transform.translate(-here[0], -here[2]);
+            transform.rotate((90-orient)*Math.PI/180);
+
             var rect :Rectangle = new Rectangle();
-            var start :Point = new Point(here[0], here[2]);
-            rect.topLeft = new Point(0, -CHARGE_BREADTH/2);//rotate.transformPoint(new Point);
-            //rect.y -= CHARGE_BREADTH/2;
+            rect.topLeft = new Point(0, -CHARGE_BREADTH/2);
             rect.height = CHARGE_BREADTH;
             rect.width = CHARGE_LENGTH;
 
             var targets :Array = WyvernUtil.query(ctrl, function (svc :Object, id :String) :Boolean {
                 var there :Array = ctrl.getEntityProperty(EntityControl.PROP_LOCATION_PIXEL, id) as Array;
                 return WyvernUtil.isAttackable(ctrl, svc) &&
-                    rect.containsPoint(rotate.transformPoint(new Point(there[0], there[2])));
+                    rect.containsPoint(transform.transformPoint(new Point(there[0], there[2])));
 //                    WyvernUtil.insideArc(here, orient, 180,
 //                        ctrl.getEntityProperty(EntityControl.PROP_LOCATION_PIXEL, id) as Array);
             });
@@ -86,10 +86,13 @@ public class Thug
             ctrl.setMemory("mana", mana-CHARGE_COST);
             sprite.effect({text: "Falcon kick! " + orient + " Hit: " + targets.length, event:WyvernConstants.EVENT_ATTACK});
 
-//            var end :Point = start.add(new Point(CHARGE_LENGTH, 0));
+            transform.invert();
+            var end :Point = transform.transformPoint(new Point(rect.width, 0));
 
-            rotate.invert();
-            var end :Point = rotate.transformPoint(new Point(CHARGE_LENGTH, 0));
+            // TODO: Weaksauce wall handling, but fine for now
+            end.x = Math.max(0, Math.min(end.x, bounds[0]));
+            end.y = Math.max(0, Math.min(end.y, bounds[2]));
+
             ctrl.setPixelLocation(end.x, 0, end.y, ctrl.getOrientation());
             return true;
 
