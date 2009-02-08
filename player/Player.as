@@ -116,7 +116,7 @@ public class Player_@KLASS@ extends Sprite
             });
             nag.styleSheet = css;
 
-            _ctrl.showPopup("Want coins?", nag, nag.width, nag.textHeight, 0, 0.8);
+            GraphicsUtil.showPopup(_ctrl, "Want coins?", nag, nag.width, nag.textHeight);
         }
     }
 
@@ -173,12 +173,8 @@ public class Player_@KLASS@ extends Sprite
     {
         if (_ctrl.hasControl()) {
             switch (event.name) {
-//                case "Special Ability":
-//                    _klass.handleSpecial(_ctrl, _quest);
-//                    break;
-
                 case "Inventory":
-                    _ctrl.showPopup("Inventory", _inventory, _inventory.width, _inventory.height, 0, 0.8);
+                    GraphicsUtil.showPopup(_ctrl, "Inventory", _inventory);
                     break;
 
 //                case "Cheat":
