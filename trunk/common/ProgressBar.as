@@ -5,30 +5,48 @@ import flash.display.Sprite;
 
 public class ProgressBar extends Sprite
 {
-    public var color :int;
-    public var background :int;
-
     public static const WIDTH :int = 80;
     public static const HEIGHT :int = 6;
 
     public function ProgressBar (color :int, background :int)
     {
-        this.color = color;
-        this.background = background;
+        _color = color;
+        _background = background;
+        // Don't draw until we get a percent
+    }
+
+    public function set color (color :int) :void
+    {
+        _color = color;
+        redraw();
+    }
+
+    public function set background (background :int) :void
+    {
+        _background = background;
+        redraw();
     }
 
     public function set percent (p :Number) :void
     {
-        p = Math.min(Math.max(0, p), 1);
+        _percent = Math.min(Math.max(0, p), 1);
+        redraw();
+    }
 
-        graphics.beginFill(color);
-        graphics.drawRect(0, 0, WIDTH*p, HEIGHT);
+    protected function redraw () :void
+    {
+        graphics.beginFill(_color);
+        graphics.drawRect(0, 0, WIDTH*_percent, HEIGHT);
         graphics.endFill();
 
-        graphics.beginFill(background);
-        graphics.drawRect(WIDTH*p, 0, WIDTH*(1-p), HEIGHT);
+        graphics.beginFill(_background);
+        graphics.drawRect(WIDTH*_percent, 0, WIDTH*(1-_percent), HEIGHT);
         graphics.endFill();
     }
+
+    protected var _percent :Number;
+    protected var _background :int;
+    protected var _color :int;
 }
 
 }
