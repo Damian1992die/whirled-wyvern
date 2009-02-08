@@ -51,8 +51,10 @@ public class PlayerSprite extends WyvernSprite
     {
         super.handleMemory();
 
-        _manaBar.percent = getMana();
+        var mana :Number = getMana();
+        _manaBar.percent = mana;
         _manaBar.visible = (getHealth() > 0);
+        _manaBar.color = (mana > 0.2) ? 0x0000ff : 0x003153
     }
 
     /** Handy function to switch game states by changing avatar states. */
@@ -71,7 +73,7 @@ public class PlayerSprite extends WyvernSprite
             switch (event.value.event) {
                 case WyvernConstants.EVENT_COUNTER:
                     if (WyvernUtil.self(_ctrl).getState() == WyvernConstants.STATE_COUNTER &&
-                        !spendMana(0.1)) {
+                        !spendMana(0.2)) {
                         setState(WyvernConstants.STATE_ATTACK);
                     }
                     break;
@@ -95,7 +97,7 @@ public class PlayerSprite extends WyvernSprite
         return _ctrl.getMemory("mana") as Number;
     }
 
-    protected var _manaBar :ProgressBar = new ProgressBar(0x0000ff, 0x000000);
+    protected var _manaBar :ProgressBar = new ProgressBar(0, 0);
 }
 
 }
