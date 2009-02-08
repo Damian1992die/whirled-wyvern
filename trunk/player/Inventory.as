@@ -401,7 +401,7 @@ public class Inventory extends Sprite
         { font: "_sans", size: 12, bold: true });
 
     protected var _helpText :TextField = TextFieldUtil.createField(
-        "Click to wear an item, ctrl+click to permanently delete it.", {
+        "Click to wear an item. Drag an item to the trash to permanently delete it.", {
             textColor: 0xc0c0c0, selectable: false,
             autoSize: TextFieldAutoSize.LEFT, outlineColor: 0x00000 },
         { font: "_sans", size: 8 });
