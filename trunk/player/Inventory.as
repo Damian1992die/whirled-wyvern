@@ -31,6 +31,11 @@ public class Inventory extends Sprite
         _ctrl.addEventListener(ControlEvent.MEMORY_CHANGED, handleMemory);
         Command.bind(_ctrl, ControlEvent.MEMORY_CHANGED, updateStatus);
 
+        Command.bind(this, MouseEvent.ROLL_OUT, endDrag);
+        Command.bind(this, MouseEvent.ROLL_OUT, function () :void {
+            _trashCan.visible = false;
+        });
+
         addChild(_itemPreview);
         _itemText.x = (Doll.SIZE+8);
         addChild(_itemText);
@@ -54,6 +59,19 @@ public class Inventory extends Sprite
             _bags[i] = bag;
             addChild(bag);
         }
+
+
+        addEventListener(MouseEvent.MOUSE_MOVE, function (event :MouseEvent) :void {
+            if (_dragged != null) {
+                _trashCan.bitmapData = (_dragged.container.dropTarget == _trashCan) ?
+                    _iconTrashFull : _iconTrashEmpty;
+            }
+        });
+
+        _trashCan.bitmapData = _iconTrashEmpty;
+        _trashCan.x = this.width - 32;
+        _trashCan.visible = false;
+        addChild(_trashCan);
 
         _helpText.y = _bags[MAX_BAGS-1].y + Doll.SIZE + 8;
         addChild(_helpText);
@@ -113,41 +131,56 @@ public class Inventory extends Sprite
 
     protected function handleMouseDown (event :MouseEvent) :void
     {
-        var dragged :InventoryBag = InventoryBag(event.currentTarget.parent);
+        _dragged = InventoryBag(event.currentTarget.parent);
 
-        dragged.container.startDrag();
-        setChildIndex(dragged, numChildren-1); // Bring to front
+        _dragged.container.startDrag();
+        setChildIndex(_dragged, numChildren-1); // Bring to front
     }
 
     protected function handleMouseUp (event :MouseEvent) :void
     {
-        var dragged :InventoryBag = InventoryBag(event.currentTarget.parent);
-        dragged.container.stopDrag();
-
-        var target :InventoryBag =
-            GraphicsUtil.findParent(dragged.container.dropTarget, InventoryBag) as InventoryBag;
-
-        if (dragged == target) {
-            _ctrl.doBatch(function () :void {
-                equip(dragged.bag);
-            });
-        } else if (target != null) {
-            _ctrl.doBatch(function () :void {
-                var from :int = dragged.bag;
-                var to :int = target.bag;
-                swap(to, from);
-            });
+        if (_dragged == null) {
+            return;
         }
 
-        dragged.container.x = 0;
-        dragged.container.y = 0;
+        if (_dragged.container.dropTarget == _trashCan) {
+            destroy(_dragged.bag);
+            _trashCan.bitmapData = _iconTrashEmpty;
+
+        } else {
+            var target :InventoryBag =
+                GraphicsUtil.findParent(_dragged.container.dropTarget, InventoryBag) as InventoryBag;
+
+            if (_dragged == target) {
+                _ctrl.doBatch(function () :void {
+                    equip(_dragged.bag);
+                });
+
+            } else if (target != null) {
+                _ctrl.doBatch(function () :void {
+                    var from :int = _dragged.bag;
+                    var to :int = target.bag;
+                    swap(to, from);
+                });
+
+            } else {
+                _trashCan.visible = false;
+            }
+        }
+
+        endDrag();
+    }
+
+    protected function endDrag () :void
+    {
+        _dragged.container.stopDrag();
+        _dragged.container.x = 0;
+        _dragged.container.y = 0;
+        _dragged = null;
     }
 
     protected function destroy (bag :int) :void
     {
-//        var memory :Array = _ctrl.getMemory("#" + bag) as Array;
-//        if (memory != null) {
-//        }
         _ctrl.setMemory("#" + bag, null);
     }
 
@@ -201,6 +234,8 @@ public class Inventory extends Sprite
 
             _itemText.visible = true;
             _statusText.visible = false;
+
+            _trashCan.visible = true;
         }
     }
 
@@ -209,6 +244,8 @@ public class Inventory extends Sprite
         _itemPreview.layer([]);
         _itemText.visible = false;
         _statusText.visible = true;
+
+        _trashCan.visible = (_dragged != null);
     }
 
     protected function handleMemory (event :ControlEvent) :void
@@ -371,6 +408,15 @@ public class Inventory extends Sprite
 
     protected var _statusLine :String;
 
+    [Embed(source="rsrc/trashcan_empty.png")]
+    protected static const ICON_TRASH_EMPTY :Class;
+    protected var _iconTrashEmpty :BitmapData = BitmapData(new ICON_TRASH_EMPTY().bitmapData);
+    [Embed(source="rsrc/trashcan_full.png")]
+    protected static const ICON_TRASH_FULL :Class;
+    protected var _iconTrashFull :BitmapData = BitmapData(new ICON_TRASH_FULL().bitmapData);
+
+    protected var _trashCan :Bitmap = new Bitmap();
+
     /** Maps item category to Sounds. */
     protected var _attackSounds :Array;
 
@@ -378,6 +424,7 @@ public class Inventory extends Sprite
 
     protected var _bags :Array;
     protected var _equipment :Array = []; // Maps slots to memory bags
+    protected var _dragged :InventoryBag; // The bag currently being dragged
 
     protected var _ctrl :EntityControl;
     protected var _klass :Klass;
