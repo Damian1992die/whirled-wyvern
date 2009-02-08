@@ -217,7 +217,7 @@ public class WyvernSprite extends Sprite
         }
 
         if (amount > 0 && WyvernUtil.self(_ctrl).getState() == WyvernConstants.STATE_HEAL) {
-            amount *= 3;
+            amount *= 2;
         }
 
         amount = Math.ceil(amount);
