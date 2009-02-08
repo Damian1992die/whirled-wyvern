@@ -283,7 +283,7 @@ public class Inventory extends Sprite
             "Level " + level + " (";
 
         if (level < PlayerCodes.MAX_LEVEL) {
-            text += (int(100*((xp-start) / (WyvernUtil.getXp(level+1)-start)))) + "% to next)"
+            text += (int(100*((xp-start) / (WyvernUtil.getXp(level+1)-start)))) + "% to next"
         } else {
             text += "GODLIKE";
         }
