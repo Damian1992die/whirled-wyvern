@@ -15,4 +15,4 @@ convert /tmp/1.png \
 convert /tmp/2.png -fill white -font FreeSans-Bold -stroke black -pointsize 14 \
     -annotate +0+58 "Lvl $3" /tmp/3.png
 
-composite -gravity NorthEast \( -resize 24x24 -sharpen 2 ~/icon.png \) /tmp/3.png $2
+composite -gravity NorthEast \( -resize 24x24 -sharpen 2 ../meta/icon.png \) /tmp/3.png $2
