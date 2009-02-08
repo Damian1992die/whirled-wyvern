@@ -38,12 +38,16 @@ public class Inventory extends Sprite
         addChild(_statusText);
 
         _bags = new Array(MAX_BAGS);
+        graphics.lineStyle(2, 0x0000ff);
         for (var i :int = 0; i < MAX_BAGS; ++i) {
             var bag :InventoryBag = new InventoryBag(i);
             bag.x = Doll.SIZE*(i%10);
             bag.y = Doll.SIZE*int(i/10) + (Doll.SIZE+8);
 
-            bag.addEventListener(MouseEvent.CLICK, handleClick);
+            graphics.drawRect(bag.x, bag.y, Doll.SIZE, Doll.SIZE);
+
+            bag.container.addEventListener(MouseEvent.MOUSE_DOWN, handleMouseDown);
+            bag.container.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
             Command.bind(bag, MouseEvent.ROLL_OVER, preview, i);
             Command.bind(bag, MouseEvent.ROLL_OUT, clearPreview);
 
@@ -107,6 +111,38 @@ public class Inventory extends Sprite
         });
     }
 
+    protected function handleMouseDown (event :MouseEvent) :void
+    {
+        var dragged :InventoryBag = InventoryBag(event.currentTarget.parent);
+
+        dragged.container.startDrag();
+        setChildIndex(dragged, numChildren-1); // Bring to front
+    }
+
+    protected function handleMouseUp (event :MouseEvent) :void
+    {
+        var dragged :InventoryBag = InventoryBag(event.currentTarget.parent);
+        dragged.container.stopDrag();
+
+        var target :InventoryBag =
+            GraphicsUtil.findParent(dragged.container.dropTarget, InventoryBag) as InventoryBag;
+
+        if (dragged == target) {
+            _ctrl.doBatch(function () :void {
+                equip(dragged.bag);
+            });
+        } else if (target != null) {
+            _ctrl.doBatch(function () :void {
+                var from :int = dragged.bag;
+                var to :int = target.bag;
+                swap(to, from);
+            });
+        }
+
+        dragged.container.x = 0;
+        dragged.container.y = 0;
+    }
+
     protected function destroy (bag :int) :void
     {
 //        var memory :Array = _ctrl.getMemory("#" + bag) as Array;
@@ -136,6 +172,16 @@ public class Inventory extends Sprite
             }
             _ctrl.setMemory("#" + bag, memory);
         }
+    }
+
+    /** Swap two bag contents. */
+    protected function swap (firstBag :int, secondBag :int) :void
+    {
+        var first :Array = _ctrl.getMemory("#" + firstBag) as Array;
+        var second :Array = _ctrl.getMemory("#" + secondBag) as Array;
+
+        _ctrl.setMemory("#" + firstBag, second);
+        _ctrl.setMemory("#" + secondBag, first);
     }
 
     protected function preview (bag :int) :void
