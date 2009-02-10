@@ -117,18 +117,6 @@ public class Inventory extends Sprite
         return x == items.length;
     }
 
-    protected function handleClick (event :MouseEvent) :void
-    {
-        _ctrl.doBatch(function () :void {
-            var bag :int = InventoryBag(event.currentTarget).bag;
-            if (event.ctrlKey) {
-                destroy(bag);
-            } else {
-                equip(bag);
-            }
-        });
-    }
-
     protected function handleMouseDown (event :MouseEvent) :void
     {
         _dragged = InventoryBag(event.currentTarget.parent);
@@ -161,6 +149,8 @@ public class Inventory extends Sprite
                     var from :int = _dragged.bag;
                     var to :int = target.bag;
                     swap(to, from);
+
+                    preview(to); // We need this because creating a sprite under the cursor doesn't fire a ROLL_OVER event!
                 });
 
             } else {
@@ -182,6 +172,7 @@ public class Inventory extends Sprite
     protected function destroy (bag :int) :void
     {
         _ctrl.setMemory("#" + bag, null);
+        _bags[bag].reset(); // Immediately empty it, don't wait for the memory update
     }
 
     protected function equip (bag :int) :void
@@ -215,6 +206,18 @@ public class Inventory extends Sprite
 
         _ctrl.setMemory("#" + firstBag, second);
         _ctrl.setMemory("#" + secondBag, first);
+
+        // Update the display immediately, don't wait for the memory update events
+        if (first != null) {
+            _bags[secondBag].setItem(first[0], first[2]);
+        } else {
+            _bags[secondBag].reset();
+        }
+        if (second != null) {
+            _bags[firstBag].setItem(second[0], second[2]);
+        } else {
+            _bags[firstBag].reset();
+        }
     }
 
     protected function preview (bag :int) :void
@@ -297,6 +300,8 @@ public class Inventory extends Sprite
             var memory :Array = _ctrl.getMemory("#"+i) as Array;
             if (memory != null) {
                 _bags[i].setItem(memory[0], memory[2]);
+            } else {
+                _bags[i].reset();
             }
         }
     }
