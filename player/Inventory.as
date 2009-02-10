@@ -150,7 +150,7 @@ public class Inventory extends Sprite
                     var to :int = target.bag;
                     swap(to, from);
 
-                    preview(to); // We need this because creating a sprite under the cursor doesn't fire a ROLL_OVER event!
+                    preview(from); // We need this because creating a sprite under the cursor doesn't fire a ROLL_OVER event!
                 });
 
             } else {
