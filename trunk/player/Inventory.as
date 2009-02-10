@@ -53,7 +53,7 @@ public class Inventory extends Sprite
 
             bag.container.addEventListener(MouseEvent.MOUSE_DOWN, handleMouseDown);
             bag.container.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
-            Command.bind(bag, MouseEvent.ROLL_OVER, preview, i);
+            Command.bind(bag, MouseEvent.MOUSE_OVER, preview, i);
             Command.bind(bag, MouseEvent.ROLL_OUT, clearPreview);
 
             _bags[i] = bag;
@@ -149,8 +149,6 @@ public class Inventory extends Sprite
                     var from :int = _dragged.bag;
                     var to :int = target.bag;
                     swap(to, from);
-
-                    preview(from); // We need this because creating a sprite under the cursor doesn't fire a ROLL_OVER event!
                 });
 
             } else {
@@ -207,17 +205,8 @@ public class Inventory extends Sprite
         _ctrl.setMemory("#" + firstBag, second);
         _ctrl.setMemory("#" + secondBag, first);
 
-        // Update the display immediately, don't wait for the memory update events
-        if (first != null) {
-            _bags[secondBag].setItem(first[0], first[2]);
-        } else {
-            _bags[secondBag].reset();
-        }
-        if (second != null) {
-            _bags[firstBag].setItem(second[0], second[2]);
-        } else {
-            _bags[firstBag].reset();
-        }
+        _bags[firstBag].reset();
+        _bags[secondBag].reset();
     }
 
     protected function preview (bag :int) :void
