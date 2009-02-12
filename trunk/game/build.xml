@@ -3,6 +3,6 @@
   <property name="app.name" value="Game"/>
   <property name="app.enable-server-agent" value="true"/>
 
-  <import file="../build-import.xml"/>
+  <import file="../lib/build-import.xml"/>
 
 </project>

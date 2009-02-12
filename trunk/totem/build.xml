@@ -3,6 +3,6 @@
   <property name="app.name" value="Totem"/>
   <property name="app.type" value="toy"/>
 
-  <import file="../build-import.xml"/>
+  <import file="../lib/build-import.xml"/>
 
 </project>
