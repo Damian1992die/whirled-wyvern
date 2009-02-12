@@ -8,11 +8,7 @@ This applies to building the Wyvern code game, avatars and pets, as originally w
  * Whirled SDK
  * Ant
 
-For building Players:
- * Ant-contrib
-
 For building Monsters:
- * Ant-contrib
  * Imagemagick (For generating the shop thumbnail. This is probably more trouble than it's  worth to get working on Windows, so just comment it out from Monster's build.xml)
 
 Then go to each module's directory (game, player, monster...) and run ant.
