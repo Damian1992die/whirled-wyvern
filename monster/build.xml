@@ -2,7 +2,7 @@
 
   <property name="app.type" value="pet"/>
 
-  <import file="../build-import.xml"/>
+  <import file="../lib/build-import.xml"/>
 
   <target name="test-monster" depends="build-all">
     <antcall target="test-only">
@@ -35,8 +35,7 @@
   </target>
 
   <target name="build-all">
-    <!-- Move ant-contrib.jar to your ant lib dir. -->
-    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="../lib/ant-contrib.jar" />
 
     <property file="monsters.properties" />
     <for list="${monsters.list}" param="monster">

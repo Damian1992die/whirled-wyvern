@@ -2,7 +2,7 @@
 
   <property name="app.type" value="avatar"/>
 
-  <import file="../build-import.xml"/>
+  <import file="../lib/build-import.xml"/>
 
   <target name="build-klass">
     <echo message="Building ${klass.name}" />
@@ -22,8 +22,7 @@
   </target>
 
   <target name="build-all">
-    <!-- Move ant-contrib.jar to your ant lib dir. -->
-    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="../lib/ant-contrib.jar" />
 
     <property file="config.properties" />
     <for list="${klasses.list}" param="klass">
