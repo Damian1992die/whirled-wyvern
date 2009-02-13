@@ -43,7 +43,7 @@ public class PlayerSprite extends WyvernSprite
             }
 
         } else if (mana < 1) {
-            _ctrl.setMemory("mana", Math.min(mana + 0.05, 1));
+            _ctrl.setMemory("mana", Math.min(mana + 0.02, 1));
         }
     }
 
