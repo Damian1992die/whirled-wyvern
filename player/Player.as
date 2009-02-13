@@ -8,7 +8,6 @@ import flash.events.Event;
 import flash.display.DisplayObject;
 import flash.display.Sprite;
 import flash.display.Bitmap;
-import flash.text.*;
 
 import flash.filters.GlowFilter;
 
@@ -47,7 +46,7 @@ public class Player_@KLASS@ extends Sprite
             states.push(state);
         }
         _ctrl.registerStates(states.sort());
-        _ctrl.registerActions("Special Attack", "Inventory");
+        _ctrl.registerActions("Inventory");
 
         _ctrl.addEventListener(ControlEvent.ACTION_TRIGGERED, handleAction);
         _ctrl.addEventListener(ControlEvent.ACTION_TRIGGERED, handleSpecial);
@@ -97,6 +96,16 @@ public class Player_@KLASS@ extends Sprite
         }
     }
 
+    protected function registerActions (bankHere :Boolean) :void
+    {
+        var actions :Array = [ "Inventory" ];
+        if (bankHere) {
+            _ctrl.registerActions(actions.concat("Memory deposit", "Memory withdraw"));
+        } else {
+            _ctrl.registerActions(actions);
+        }
+    }
+
     // Only called on the controller (wearer)
     public function handleSignal (event :ControlEvent) :void
     {
@@ -104,19 +113,7 @@ public class Player_@KLASS@ extends Sprite
             !_svc.gameOpen &&
             event.value[0] == _ctrl.getEntityProperty(EntityControl.PROP_MEMBER_ID)) {
 
-            var nag :TextField = TextFieldUtil.createField("",
-                { textColor: 0xff0000, selectable: false,
-                    outlineColor: 0x00000, wordWrap: true, multiline: true, width: 250, height: 400 },
-                { font: "_sans", size: 14, bold: true, align: "justify" });
-            nag.htmlText = "Oh snap! You would have got Whirled coins for that kill, but you weren't logged into Wyvern. Login by clicking a Wyvern game icon or <a href='http://www.whirled.com/#games-d_1254'>visit New Yvern</a> to start earning coins and trophies for playing!";
-            var css :StyleSheet = new StyleSheet();
-            css.setStyle("a", {
-                color: "#0000ff",
-                textDecoration: "underline"
-            });
-            nag.styleSheet = css;
-
-            GraphicsUtil.showPopup(_ctrl, "Want coins?", nag, nag.width, nag.textHeight);
+            GraphicsUtil.feedback(_ctrl, "Oh snap! You would have got Whirled coins for that kill, but you weren't logged into Wyvern. Login by clicking a Wyvern game icon or <a href='http://www.whirled.com/#games-d_1254'>visit New Yvern</a> to start earning coins and trophies for playing!");
         }
     }
 
@@ -176,18 +173,6 @@ public class Player_@KLASS@ extends Sprite
                 case "Inventory":
                     GraphicsUtil.showPopup(_ctrl, "Inventory", _inventory);
                     break;
-
-//                case "Cheat":
-//                    _svc.awardXP(110);
-//                    //_inventory.deposit(int(Math.random()*Items.TABLE.length), 0);
-//                    //_inventory.deposit(int(Math.random()*6+16), 0);
-//                    _svc.awardRandomItem(1);
-//                    if (_svc.getState() == WyvernConstants.STATE_DEAD) {
-//                        _svc.revive();
-//                    }
-//                    //_inventory.getAttackSound().play();
-//                    _soundDie.play();
-//                    break;
             }
         }
     }
@@ -206,6 +191,16 @@ public class Player_@KLASS@ extends Sprite
         } else {
             return null;
         }
+    }
+
+    protected function bankDeposit (bank :Object) :void
+    {
+        bank.deposit(_ctrl.getMemories());
+    }
+
+    protected function bankWithdraw (bank :Object) :void
+    {
+        BankUtil.replaceMemories(_ctrl, bank.withdraw());
     }
 
     protected var _ctrl :AvatarControl;
