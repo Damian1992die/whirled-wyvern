@@ -119,10 +119,12 @@ public class Server extends ServerObject
                 var mode :int = data[3];
 
                 // TODO: Maybe not allow players to earn credit from killing their own monsters
-                try {
-                    // A hero should be awarded
-                    if (mode == WyvernConstants.PLAYER_KILLED_MONSTER ||
-                        mode == WyvernConstants.PLAYER_KILLED_PLAYER) {
+
+                // A hero should be awarded
+                if (mode == WyvernConstants.PLAYER_KILLED_MONSTER ||
+                    mode == WyvernConstants.PLAYER_KILLED_PLAYER) {
+
+                    if (killerId in _players) {
                         var player :PlayerSubControlServer = _ctrl.getPlayer(killerId);
                         var heroStat :String = Codes.HERO+mode;
 
@@ -130,35 +132,35 @@ public class Server extends ServerObject
                         player.props.set(heroStat+Codes.LEVELS, int(player.props.get(heroStat+Codes.LEVELS))+level);
                         player.props.set(heroStat+Codes.COUNT, int(player.props.get(heroStat+Codes.COUNT))+1);
 
-                        //echo(player, "Well done, " + heroStat + " = " + player.props.get(heroStat));
-                    }
-
-                    // Award the dungeon keeper
-                    if (mode == WyvernConstants.PLAYER_KILLED_MONSTER ||
-                        mode == WyvernConstants.MONSTER_KILLED_PLAYER) {
-                        var keeperId :int =
-                            (mode == WyvernConstants.PLAYER_KILLED_MONSTER) ? victimId : killerId;
-                        var keeperStat :String = Codes.KEEPER+mode;
-
-                        _ctrl.loadOfflinePlayer(keeperId,
-                            function (props :OfflinePlayerPropertyControl) :void {
-                                props.set(Codes.CREDITS, int(props.get(Codes.CREDITS))+level);
-                                props.set(keeperStat+Codes.LEVELS, int(props.get(keeperStat+Codes.LEVELS))+level);
-                                props.set(keeperStat+Codes.COUNT, int(props.get(keeperStat+Codes.COUNT))+1);
-                            },
-                            function (... _) :void {
-                                log.warning("Ruh oh, " + keeperId + " has built a dungeon without playing the game first.");
+                        if (mode == WyvernConstants.PLAYER_KILLED_PLAYER) {
+                            if (victimId in _players) {
+                                broadcast(getPlayerName(killerId) + " has slain " + getPlayerName(victimId) + "!");
+                            } else {
+                                log.warning("A player died in PvP, but he wasn't in the AVRG");
                             }
-                        );
+                        }
+                    } else {
+                        log.warning("A player killed something, but he wasn't in the AVRG");
                     }
+                }
 
-                    if (mode == WyvernConstants.PLAYER_KILLED_PLAYER) {
-                        broadcast(getPlayerName(killerId) + " has slain " + getPlayerName(victimId) + "!");
-                    }
+                // Award the dungeon keeper
+                if (mode == WyvernConstants.PLAYER_KILLED_MONSTER ||
+                    mode == WyvernConstants.MONSTER_KILLED_PLAYER) {
+                    var keeperId :int =
+                        (mode == WyvernConstants.PLAYER_KILLED_MONSTER) ? victimId : killerId;
+                    var keeperStat :String = Codes.KEEPER+mode;
 
-                } catch (error :Error) {
-                    // It's possible that they're hacking away while not in the AVRG
-                    log.warning("Someone is playing outside the AVRG!");
+                    _ctrl.loadOfflinePlayer(keeperId,
+                        function (props :OfflinePlayerPropertyControl) :void {
+                            props.set(Codes.CREDITS, int(props.get(Codes.CREDITS))+level);
+                            props.set(keeperStat+Codes.LEVELS, int(props.get(keeperStat+Codes.LEVELS))+level);
+                            props.set(keeperStat+Codes.COUNT, int(props.get(keeperStat+Codes.COUNT))+1);
+                        },
+                        function (cause :String) :void {
+                            log.warning("Couldn't award dungeon keeper", "cause", cause);
+                        }
+                    );
                 }
             }
         });
