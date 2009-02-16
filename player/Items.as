@@ -405,22 +405,23 @@ public class Items
         [ 258, "Yellow cloak", BACK, NONE, 2 ],
 
         // Gloves
-        [ 0, "Gladiator gloves", GLOVES, LIGHT, 8],
-		[ 3, "Blue gloves", GLOVES, NONE, 4],
-		[ 11, "Red gloves", GLOVES, HEAVY, 4],
-		[ 7, "Dark gloves", GLOVES, LIGHT, 4],
-		[ 4, "Purple gloves", GLOVES, NONE, 4],
-		[ 9, "Orange gloves", GLOVES, HEAVY, 4],
-		[ 5, "Royalguard gloves", GLOVES, HEAVY, 6],
-		
+        [ 0, "Gladiator's Fist", GLOVES, LIGHT, 8],
         [ 1, "Obsidian knuckles", GLOVES, HEAVY, 6],
-		[ 8, "Steel knuckles", GLOVES, HEAVY, 9],
-		
         [ 2, "Leather mitts", GLOVES, NONE, 2],
-		[ 6, "Gold mitts", GLOVES, LIGHT, 7],
-		[ 10, "Noble mitts", GLOVES, HEAVY, 9],
-		
-        // TODO
+        [ 3, "Blue gloves", GLOVES, NONE, 3],
+        [ 4, "Purple gloves", GLOVES, NONE, 4],
+        [ 5, "Paladin gauntlets", GLOVES, HEAVY, 8],
+        [ 6, "Gold mitts", GLOVES, LIGHT, 6],
+        [ 7, "Grasp of the Mummy", GLOVES, ARCANE, 8],
+        [ 8, "Steel gauntlets", GLOVES, HEAVY, 4],
+        [ 9, "Rusty gauntlets", GLOVES, HEAVY, 1],
+        [ 10, "Noble gloves", GLOVES, NONE, 8],
+        [ 11, "Boxing gloves", GLOVES, LIGHT, 4],
+        [ 12, "Sapphire rings", GLOVES, ARCANE, 2 ],
+        [ 16, "Pixie gloves", GLOVES, ARCANE, 4],
+        [ 17, "Glowing bracelets", GLOVES, ARCANE, 6],
+        [ 18, "Doctor's gloves", GLOVES, NONE, 4],
+        [ 19, "Hand cuffs", GLOVES, NONE, 5],
     ];
 
     /** A list of item IDs sorted ascending by power. */
