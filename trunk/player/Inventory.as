@@ -364,27 +364,42 @@ public class Inventory extends Sprite
         return 400;
     }
 
+    protected function getAttackMultiplier (slot :int) :Number
+    {
+        return (slot == Items.HAND || slot == Items.GLOVES) ? 1 : 0;
+    }
+
+    protected function getDefenceMultiplier (slot :int) :Number
+    {
+        return (getAttackMultiplier(slot) > 0) ? 0 : 1;
+    }
+
     public function getPower () :Number
     {
-        if (Items.HAND in _equipment) {
-            return (Items.TABLE[_equipment[Items.HAND][0]][4] + _equipment[Items.HAND][1]) *
-                _klass.getMultiplier(Items.TABLE[_equipment[Items.HAND][0]][3]);
-        } else {
-            return 0;
+        var sum :Number = 0;
+        for each (var memory :Array in _equipment) {
+            var slot :int = Items.TABLE[memory[0]][2];
+            var power :int = Items.TABLE[_equipment[slot][0]][4];
+            var type :int = Items.TABLE[_equipment[slot][0]][3];
+            var bonus :int = _equipment[slot][1];
+            sum += getAttackMultiplier(slot) * ((power+bonus) * _klass.getMultiplier(type));
         }
+
+        return sum;
     }
 
     public function getDefence () :Number
     {
-        var defence :int = 0;
+        var sum :Number = 0;
         for each (var memory :Array in _equipment) {
-            // If it's not a weapon
-            if (Items.TABLE[memory[0]][2] != Items.HAND) {
-                defence += (Items.TABLE[memory[0]][4] + memory[1]) *
-                    _klass.getMultiplier(Items.TABLE[memory[0]][3]);
-            }
+            var slot :int = Items.TABLE[memory[0]][2];
+            var power :int = Items.TABLE[_equipment[slot][0]][4];
+            var type :int = Items.TABLE[_equipment[slot][0]][3];
+            var bonus :int = _equipment[slot][1];
+            sum += getDefenceMultiplier(slot) * ((power+bonus) * _klass.getMultiplier(type));
         }
-        return defence;
+
+        return sum;
     }
 
     public function getAttackSound () :Sound
