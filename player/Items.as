@@ -10,6 +10,7 @@ public class Items
     public static const LEGS :int = 2;
     public static const TORSO :int = 3;
     public static const HEAD :int = 4;
+    public static const GLOVES :int = 6;
     public static const HAND :int = 5;
 
     // Item categories, for class-based bonuses
@@ -402,6 +403,12 @@ public class Items
         [ 256, "Red cloak", BACK, NONE, 2 ],
         [ 257, "White cloak", BACK, NONE, 2 ],
         [ 258, "Yellow cloak", BACK, NONE, 2 ],
+
+        // Gloves
+        [ 0, "Gladiator gloves", GLOVES, LIGHT, 8],
+        [ 1, "Obsidian knuckles", GLOVES, HEAVY, 6],
+        [ 2, "Leather mitts", GLOVES, NONE, 2],
+        // TODO
     ];
 
     /** A list of item IDs sorted ascending by power. */
