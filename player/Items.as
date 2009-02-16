@@ -1,4 +1,4 @@
-package {
+﻿package {
 
 import com.threerings.util.RandomUtil;
 
@@ -406,8 +406,20 @@ public class Items
 
         // Gloves
         [ 0, "Gladiator gloves", GLOVES, LIGHT, 8],
+		[ 3, "Blue gloves", GLOVES, NONE, 4],
+		[ 11, "Red gloves", GLOVES, HEAVY, 4],
+		[ 7, "Dark gloves", GLOVES, LIGHT, 4],
+		[ 4, "Purple gloves", GLOVES, NONE, 4],
+		[ 9, "Orange gloves", GLOVES, HEAVY, 4],
+		[ 5, "Royalguard gloves", GLOVES, HEAVY, 6],
+		
         [ 1, "Obsidian knuckles", GLOVES, HEAVY, 6],
+		[ 8, "Steel knuckles", GLOVES, HEAVY, 9],
+		
         [ 2, "Leather mitts", GLOVES, NONE, 2],
+		[ 6, "Gold mitts", GLOVES, LIGHT, 7],
+		[ 10, "Noble mitts", GLOVES, HEAVY, 9],
+		
         // TODO
     ];
 
