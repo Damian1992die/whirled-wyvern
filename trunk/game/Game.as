@@ -124,7 +124,7 @@ public class Game extends Sprite
         // Yes, this is really dumb
         var timer :Timer = new Timer(10000);
         Command.bind(timer, TimerEvent.TIMER, setAvatarEnabled, true);
-        Command.bind(root.loaderInfo, Event.UNLOAD, timer.stop);
+        Command.bind(_ctrl, Event.UNLOAD, timer.stop);
         timer.start();
         setAvatarEnabled(true);
 
