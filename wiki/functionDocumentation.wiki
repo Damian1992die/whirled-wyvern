@@ -1,2 +1,0 @@
-#labels functions,functions,functions,functions,f,f,f,f,f,f,f,f
-this page will be for documenting the various functions used in the game
