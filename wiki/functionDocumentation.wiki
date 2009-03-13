@@ -1,2 +1,2 @@
-#labels functions,functions,functions,functions,functions,functions,functions,functions,functions,functions,functions,functions,functions,functions,functions
+#labels functions,functions,functions,functions,functions,functions,functions,functions,functions,functions,functions,functions
 this page will be for documenting the various functions used in the game
