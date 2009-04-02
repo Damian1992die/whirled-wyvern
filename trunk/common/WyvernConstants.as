@@ -22,6 +22,14 @@ public class WyvernConstants
     public static const TRAIT_PLUS_HEALING :int = 1;
     public static const TRAIT_PLUS_COUNTER :int = 2;
 
+    // For AnimeMonster's classes
+    public static const TRAIT_REGEN :int = 3;
+    public static const TRAIT_BLOODTHIRST :int = 4;
+    public static const TRAIT_ASSASSIN :int = 5;
+    public static const TRAIT_BOOTY :int = 6;
+    public static const TRAIT_DECAY :int = 7;
+    public static const TRAIT_MUSIC :int = 8;
+
     // "Events" piggybacked on effects messages
     // Eventually maybe WyvernSprite could listen for these and dispatch an AS3 Event, but for
     // now, just have listeners scoop the effects messages directly
