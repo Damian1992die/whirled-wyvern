@@ -113,7 +113,17 @@ public class WyvernSprite extends Sprite
     {
         var self :Object = WyvernUtil.self(_ctrl);
 
-        switch (WyvernUtil.self(_ctrl).getState()) {
+//	  if (self.hasTrait(WyvernConstants.TRAIT_REGEN)) {
+//	  if (getHealth() < getMaxHealth()) {
+//		var regen :Number = (.02*getMaxHealth());
+//		if (regen < 1) {regen = 1};
+//		if (regen > 5) {regen = 5};
+//		self.damage(null, -regen, { 
+//			  text: "Regen"}, true);
+//		}
+//	  };
+
+        switch (self.getState()) {
             case WyvernConstants.STATE_ATTACK:
                 attack();
                 break;

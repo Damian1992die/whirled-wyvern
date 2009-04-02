@@ -19,6 +19,8 @@ import com.threerings.flash.TextFieldUtil;
 
 import com.threerings.util.Command;
 
+import flash.utils.setTimeout;
+
 import com.whirled.AvatarControl;
 import com.whirled.ControlEvent;
 import com.whirled.EntityControl;
@@ -272,11 +274,22 @@ public class Player_@KLASS@ extends Sprite
             //if (_ctrl.hasControl()) {
                 var item :int = Items.randomLoot(level, 5);
                 var bonus :int = Math.random() > 0.5 ? Math.random()*3+1 : 0;
+
                 if (_inventory.deposit(item, bonus)) {
                     _quest.effect({text: Items.TABLE[item][1], color: 0xffcc00});
                 } else {
                     _quest.effect({text: "Inventory FULL!"});
                 }
+
+                if (_svc.hasTrait(WyvernConstants.TRAIT_BLOODTHIRST)) {
+                    if (_svc.getState() != WyvernConstants.STATE_DEAD) {
+                        setTimeout(function () :void {
+                            _svc.damage(null, -Math.max(1, 0.1*_quest.getMaxHealth()), { 
+                                text: "Bloodthirst"}, true);
+                        }, 500);
+                    }
+                }
+
             //}
         },
 

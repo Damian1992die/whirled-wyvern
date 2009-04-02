@@ -383,7 +383,13 @@ public class Inventory extends Sprite
             var type :int = Items.TABLE[_equipment[slot][0]][3];
             var bonus :int = _equipment[slot][1];
             sum += getAttackMultiplier(slot) * ((power+bonus) * _klass.getMultiplier(type));
-        }
+        };
+
+//        var self :Object = WyvernUtil.self(_ctrl);
+//        var rand :int = Math.random()*(50-1)+1;
+//        var MaxHealth :int = getMaxHealth();
+//        if (self.hasTrait(WyvernConstants.TRAIT_ASSASSIN)&& rand == 10) {
+//              sum = sum+MaxHealth};
 
         return sum;
     }
