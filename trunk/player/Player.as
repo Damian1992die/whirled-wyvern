@@ -275,43 +275,20 @@ public class Player_@KLASS@ extends Sprite
                 var item :int = Items.randomLoot(level, 5);
                 var bonus :int = Math.random() > 0.5 ? Math.random()*3+1 : 0;
 
-		    var self :Object = WyvernUtil.self(_ctrl);
-
-		    function getXP () :int
-		    {
-		        return _ctrl.getMemory("xp") as Number;
-		    }
-
-		    function getLevel () :int
-		    {
-		        return WyvernUtil.getLevel(getXP());
-		    }
-
-		    function getHealth () :int
-		    {
-		        return _ctrl.getMemory("health", 1) as int;
-		    }
-
-		    function getMaxHealth () :int
-		    {
-		        return 10 + 2*getLevel();
-		    }
-
                 if (_inventory.deposit(item, bonus)) {
                     _quest.effect({text: Items.TABLE[item][1], color: 0xffcc00});
                 } else {
                     _quest.effect({text: "Inventory FULL!"});
                 }
 
-		    if (self.hasTrait(WyvernConstants.TRAIT_BLOODTHIRST)) {
-			if (getHealth() < getMaxHealth()) {
-	  		setTimeout(function () :void {
-    			trace(self.damage(null, -(Math.max(1,(.1*getMaxHealth()))), { 
-			  text: "Bloodthirst"}, true))
-			  }, 500);
-			}
-	  	    };
-
+                if (_svc.hasTrait(WyvernConstants.TRAIT_BLOODTHIRST)) {
+                    if (_quest.getHealth() < _quest.getMaxHealth()) {
+                        setTimeout(function () :void {
+                            _svc.damage(null, -Math.max(1,0.1*_quest.getMaxHealth()),
+                                { text: "Bloodthirst" }, true);
+                        }, 500);
+                    }
+                }
             //}
         },
 

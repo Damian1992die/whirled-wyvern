@@ -4,19 +4,6 @@ import com.whirled.EntityControl;
 
 public class WyvernUtil
 {
-
-    public static function guard () :int
-    {
-	var random :int = (Math.random()*(20-1)+1)
-	return random;
-    }
-
-    public static function kill () :int
-    {
-	var rand :int = (Math.random()*(50-1)+1)
-	return rand;
-    }
-
     public static function query (ctrl :EntityControl, filter :Function = null) :Array
     {
         var arr :Array = [];
