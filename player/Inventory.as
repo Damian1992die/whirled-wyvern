@@ -385,23 +385,14 @@ public class Inventory extends Sprite
             sum += getAttackMultiplier(slot) * ((power+bonus) * _klass.getMultiplier(type));
         };
 
-    var self :Object = WyvernUtil.self(_ctrl);
-    var rand :int = WyvernUtil.kill();
-    function getXP () :int
-    {
-        return _ctrl.getMemory("xp") as Number;
-    }
-    function getLevel () :int
-    {
-        return WyvernUtil.getLevel(getXP());
-    }
-    function getMaxHealth () :int
-    {
-        return 10 + 2*getLevel();
-    }
-    var MaxHealth :int = getMaxHealth();
-    if (self.hasTrait(WyvernConstants.TRAIT_ASSASSIN)&& rand == 10) {
-	  sum = sum+MaxHealth};
+        var self :Object = WyvernUtil.self(_ctrl);
+	var rand :int = Math.random()*(50-1)+1;
+
+        var max :int = self.getLevel()*10;
+        if (self.hasTrait(WyvernConstants.TRAIT_ASSASSIN) && rand == 10) {
+              sum += max;
+        };
+
         return sum;
     }
 
@@ -417,9 +408,10 @@ public class Inventory extends Sprite
         }
 
         var self :Object = WyvernUtil.self(_ctrl);
-	  var random :int = WyvernUtil.guard();
-	  if (self.hasTrait(WyvernConstants.TRAIT_PARRY) && random == 10) {
-		sum = sum+5000};
+	var random :int = Math.random()*(20-1)+1;
+        if (self.hasTrait(WyvernConstants.TRAIT_PARRY) && random == 10) {
+            sum = sum+5000
+        };
 
         return sum;
     }
