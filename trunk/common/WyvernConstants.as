@@ -29,7 +29,6 @@ public class WyvernConstants
     public static const TRAIT_MUSIC :int = 8;
     public static const TRAIT_PARRY :int = 9;
 
-
     // "Events" piggybacked on effects messages
     // Eventually maybe WyvernSprite could listen for these and dispatch an AS3 Event, but for
     // now, just have listeners scoop the effects messages directly
