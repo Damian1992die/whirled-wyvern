@@ -8,18 +8,15 @@ import flash.events.Event;
 import flash.display.DisplayObject;
 import flash.display.Sprite;
 import flash.display.Bitmap;
-
 import flash.filters.GlowFilter;
-
 import flash.media.Sound;
+import flash.utils.setTimeout;
 
 import caurina.transitions.Tweener;
 
 import com.threerings.flash.TextFieldUtil;
 
 import com.threerings.util.Command;
-
-import flash.utils.setTimeout;
 
 import com.whirled.AvatarControl;
 import com.whirled.ControlEvent;
@@ -34,6 +31,62 @@ public class Player_@KLASS@ extends Sprite
     public function Player_@KLASS@ ()
     {
         _ctrl = new AvatarControl(this);
+
+        registerControllerFunctions({
+            awardRandomItem: function (level :int) :void {
+                var item :int = Items.randomLoot(level, 5);
+                var bonus :int = Math.random() > 0.5 ? Math.random()*3+1 : 0;
+                if (_inventory.deposit(item, bonus)) {
+                    _quest.effect({text: Items.TABLE[item][1], color: 0xffcc00});
+                } else {
+                    _quest.effect({text: "Inventory FULL!"});
+                }
+
+                if (_svc.hasTrait(WyvernConstants.TRAIT_BLOODTHIRST)) {
+                    if (_quest.getHealth() < _quest.getMaxHealth()) {
+                        setTimeout(function () :void {
+                            _svc.damage(null, -Math.max(1,0.1*_quest.getMaxHealth()),
+                                { text: "Bloodthirst" }, true);
+                        }, 500);
+                    }
+                }
+            },
+
+            awardXP: function (amount :int) :void {
+                amount *= 2; // TODO: Migrate to WyvernSprite on next batch upload
+                var old :int = int(_ctrl.getMemory("xp"));
+                var oldLevel :int = WyvernUtil.getLevel(old);
+                if (oldLevel < PlayerCodes.MAX_LEVEL) { // TODO: Fix level 121 bug
+                    var now :int = old + amount;
+                    _ctrl.setMemory("xp", now);
+                    if (oldLevel < WyvernUtil.getLevel(now)) {
+                        _quest.effect({event: WyvernConstants.EVENT_LEVELUP});
+                    }
+                }
+            },
+
+            revive: function () :void {
+                if (_quest.getHealth() <= 0) {
+                    _ctrl.setMemory("health", _quest.getMaxHealth());
+                    _quest.effect({text: "Revived!", color: 0x00ff00, event: WyvernConstants.EVENT_REVIVE});
+                }
+            },
+
+            damage: function (
+                source :Object, amount :Number, cause :Object = null, ignoreArmor :Boolean = false) :void {
+
+                // The horror, the horror!
+                if (source is String) {
+                    source = WyvernUtil.getService(_ctrl, source as String);
+                }
+
+                // TODO: Uber kludge of hackery +12. Remove this when monsters are updated
+                if (_svc.getState() == WyvernConstants.STATE_COUNTER && source != null && cause == null) {
+                    cause = {event: WyvernConstants.EVENT_COUNTER};
+                }
+                _quest.damage(source, amount, cause, ignoreArmor);
+            }
+        });
 
         _doll = new Doll();
         _doll.layer([200]);
@@ -98,15 +151,15 @@ public class Player_@KLASS@ extends Sprite
         }
     }
 
-    protected function registerActions (bankHere :Boolean) :void
-    {
-        var actions :Array = [ "Inventory" ];
-        if (bankHere) {
-            _ctrl.registerActions(actions.concat("Memory deposit", "Memory withdraw"));
-        } else {
-            _ctrl.registerActions(actions);
-        }
-    }
+//    protected function registerActions (bankHere :Boolean) :void
+//    {
+//        var actions :Array = [ "Inventory" ];
+//        if (bankHere) {
+//            _ctrl.registerActions(actions.concat("Memory deposit", "Memory withdraw"));
+//        } else {
+//            _ctrl.registerActions(actions);
+//        }
+//    }
 
     // Only called on the controller (wearer)
     public function handleSignal (event :ControlEvent) :void
@@ -152,6 +205,13 @@ public class Player_@KLASS@ extends Sprite
                         break;
                 }
             }
+
+        } else if (event.name == "call" && _ctrl.hasControl()) {
+            var args :Array = event.value as Array;
+            var name :String = args.shift() as String;
+            _ctrl.doBatch(function () :void {
+                _svc[name].apply(null, args);
+            });
         }
     }
 
@@ -195,14 +255,38 @@ public class Player_@KLASS@ extends Sprite
         }
     }
 
-    protected function bankDeposit (bank :Object) :void
+//    protected function bankDeposit (bank :Object) :void
+//    {
+//        bank.deposit(_ctrl.getMemories());
+//    }
+//
+//    protected function bankWithdraw (bank :Object) :void
+//    {
+//        BankUtil.replaceMemories(_ctrl, bank.withdraw());
+//    }
+    protected function registerControllerFunction (name :String, func :Function) :void
     {
-        bank.deposit(_ctrl.getMemories());
+        // Wrap it another function which handles delegation to controller
+        _svc[name] = function (... args) :void {
+            if (_ctrl.hasControl()) {
+//                _ctrl.doBatch(func, args);
+                _ctrl.doBatch(function () :void {
+                    func.apply(null, args);
+                });
+            } else {
+                args = args.map(function (o :*) :* {
+                    return ("getIdent" in o) ? o.getIdent() : o;
+                });
+                _ctrl.sendMessage("call", [name].concat(args));
+            }
+        };
     }
 
-    protected function bankWithdraw (bank :Object) :void
+    protected function registerControllerFunctions (funcs :Object) :void
     {
-        BankUtil.replaceMemories(_ctrl, bank.withdraw());
+        for (var name :String in funcs) {
+            registerControllerFunction(name, funcs[name] as Function);
+        }
     }
 
     protected var _ctrl :AvatarControl;
@@ -268,61 +352,6 @@ public class Player_@KLASS@ extends Sprite
 
         getLevel: function () :int {
             return _quest.getLevel();
-        },
-
-        awardRandomItem: function (level :int) :void {
-            //if (_ctrl.hasControl()) {
-                var item :int = Items.randomLoot(level, 5);
-                var bonus :int = Math.random() > 0.5 ? Math.random()*3+1 : 0;
-
-                if (_inventory.deposit(item, bonus)) {
-                    _quest.effect({text: Items.TABLE[item][1], color: 0xffcc00});
-                } else {
-                    _quest.effect({text: "Inventory FULL!"});
-                }
-
-                if (_svc.hasTrait(WyvernConstants.TRAIT_BLOODTHIRST)) {
-                    if (_quest.getHealth() < _quest.getMaxHealth()) {
-                        setTimeout(function () :void {
-                            _svc.damage(null, -Math.max(1,0.1*_quest.getMaxHealth()),
-                                { text: "Bloodthirst" }, true);
-                        }, 500);
-                    }
-                }
-            //}
-        },
-
-        awardXP: function (amount :int) :void {
-            amount *= 2; // TODO: Migrate to WyvernSprite on next batch upload
-            var old :int = int(_ctrl.getMemory("xp"));
-            var oldLevel :int = WyvernUtil.getLevel(old);
-            if (oldLevel < PlayerCodes.MAX_LEVEL) { // TODO: Fix level 121 bug
-                var now :int = old + amount;
-                _ctrl.setMemory("xp", now);
-                if (oldLevel < WyvernUtil.getLevel(now)) {
-                    _quest.effect({event: WyvernConstants.EVENT_LEVELUP});
-                }
-            }
-        },
-
-        revive: function () :void {
-            //if (_ctrl.hasControl() && _quest.getHealth() <= 0) {
-            if (_quest.getHealth() <= 0) {
-                _ctrl.doBatch(function () :void {
-                    _ctrl.setMemory("health", _quest.getMaxHealth());
-                    _quest.effect({text: "Revived!", color: 0x00ff00, event: WyvernConstants.EVENT_REVIVE});
-                });
-            }
-        },
-
-        damage: function (
-            source :Object, amount :Number, cause :Object = null, ignoreArmor :Boolean = false) :void {
-
-            // TODO: Uber kludge of hackery +12. Remove this when monsters are updated
-            if (this.getState() == WyvernConstants.STATE_COUNTER && source != null && cause == null) {
-                cause = {event: WyvernConstants.EVENT_COUNTER};
-            }
-            _quest.damage(source, amount, cause, ignoreArmor);
         },
 
         // Avatar field only. Poked periodically by the AVRG: "Hey, the game is open, stop nagging the user now"
