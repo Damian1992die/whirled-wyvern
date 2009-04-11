@@ -116,9 +116,8 @@ public class Player_@KLASS@ extends Sprite
 
         handleMemory();
 
-        // If this is their first boot, or they're in the previewer
-        if ((_ctrl.getMemory("health") == null && _ctrl.hasControl()) ||
-            _ctrl.getMyEntityId() == "-1:1") {
+        // If this is their first boot
+        if (_ctrl.getMemory("health") == null && _ctrl.hasControl()) {
             _ctrl.doBatch(function () :void {
                 _quest.effect({text: "Welcome to Wyvern!", color: 0xffcc00});
                 _levelupSound.play();
