@@ -80,7 +80,7 @@ public class Inventory extends Sprite
             if (bank != null) {
                 BankUtil.replaceMemories(_ctrl, bank.withdraw(_ctrl.getMyEntityId()));
             } else {
-                GraphicsUtil.feedback(_ctrl, "No bank found! Use this button to load your old character backup. Just find a room with a piggy bank toy or <a href='event:shop-l_10_1002'>get your own!</a>");
+                GraphicsUtil.feedback(_ctrl, "No bank found! Use this button to load your old character backup. Just find a room with a piggy bank toy or <a href='event:shop-l_10_1243'>get your own!</a>");
             }
         });
         var bankDeposit :ImageButton = new ImageButton(new ICON_SAVE);
@@ -89,7 +89,7 @@ public class Inventory extends Sprite
             if (bank != null) {
                 bank.deposit(_ctrl.getMyEntityId(), _ctrl.getMemories());
             } else {
-                GraphicsUtil.feedback(_ctrl, "No bank found! Use this button to save a new character backup. Just find a room with a piggy bank toy or <a href='event:shop-l_10_1002'>get your own!</a>");
+                GraphicsUtil.feedback(_ctrl, "No bank found! Use this button to save a new character backup. Just find a room with a piggy bank toy or <a href='event:shop-l_10_1243'>get your own!</a>");
             }
         });
         bankDeposit.x = 32+8;
