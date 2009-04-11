@@ -2,6 +2,7 @@ package {
 
 import flash.display.DisplayObject;
 import flash.display.Sprite;
+import flash.events.TextEvent;
 import flash.text.StyleSheet;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
@@ -54,6 +55,9 @@ public class GraphicsUtil
             { font: "_sans", size: 14, bold: true, align: "justify" });
 
         tf.htmlText = message;
+        tf.addEventListener(TextEvent.LINK, function (event :TextEvent) :void {
+            ctrl.showPage(event.text);
+        });
 
         var css :StyleSheet = new StyleSheet();
         css.setStyle("a", {
