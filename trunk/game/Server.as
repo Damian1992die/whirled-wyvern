@@ -199,7 +199,7 @@ public class Server extends ServerObject
 
     protected function getPlayerName (playerId :int) :String
     {
-        return _ctrl.getRoom(getPlayer(playerId).roomId).getAvatarInfo(playerId).name;
+        return getPlayer(playerId).getPlayerName();
     }
 
     /** Award a trophy, with optional broadcasting. */
