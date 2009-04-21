@@ -32,6 +32,48 @@ public class Player_@KLASS@ extends Sprite
     {
         _ctrl = new AvatarControl(this);
 
+        _svc = {
+            getState: function () :String {
+                return (_quest.getHealth() == 0) ?
+                    WyvernConstants.STATE_DEAD : PlayerCodes.LABEL_TO_STATE[_ctrl.getState()];
+            },
+
+            getIdent: function () :String {
+                return _ctrl.getMyEntityId();
+            },
+
+            getFaction: function () :String {
+                return WyvernConstants.FACTION_PLAYER;
+            },
+
+            hasTrait: function (trait :int) :Boolean {
+                return _klass.getTraits().indexOf(trait) != -1;
+            },
+
+            getPower: function () :Number {
+                return _inventory.getPower() || 1;
+            },
+
+            getDefence: function () :Number {
+                return _inventory.getDefence();
+            },
+
+            getRange: function () :Number {
+                return _inventory.getRange(); // Use the range of the equipped weapon
+            },
+
+            getLevel: function () :int {
+                return _quest.getLevel();
+            },
+
+            getKlassName: function () :String {
+                return _klass.getName();
+            },
+
+            // Avatar field only. Poked periodically by the AVRG: "Hey, the game is open, stop nagging the user now"
+            gameOpen: false
+        };
+
         registerControllerFunctions({
             awardRandomItem: function (level :int) :void {
                 var item :int = Items.randomLoot(level, 5);
@@ -316,45 +358,9 @@ public class Player_@KLASS@ extends Sprite
     protected static const SOUND_LEVELUP :Class;
     protected var _levelupSound :Sound = new SOUND_LEVELUP as Sound;
 
-    protected var _klass :Klass = new @KLASS@();
+    protected const _klass :Klass = new @KLASS@();
 
-    // Bye bye type checking
-    protected const _svc :Object = {
-        getState: function () :String {
-            return (_quest.getHealth() == 0) ?
-                WyvernConstants.STATE_DEAD : PlayerCodes.LABEL_TO_STATE[_ctrl.getState()];
-        },
-
-        getIdent: function () :String {
-            return _ctrl.getMyEntityId();
-        },
-
-        getFaction: function () :String {
-            return WyvernConstants.FACTION_PLAYER;
-        },
-
-        hasTrait: function (trait :int) :Boolean {
-            return _klass.getTraits().indexOf(trait) != -1;
-        },
-
-        getPower: function () :Number {
-            return _inventory.getPower() || 1;
-        },
-
-        getDefence: function () :Number {
-            return _inventory.getDefence();
-        },
-
-        getRange: function () :Number {
-            return _inventory.getRange(); // Use the range of the equipped weapon
-        },
-
-        getLevel: function () :int {
-            return _quest.getLevel();
-        },
-
-        // Avatar field only. Poked periodically by the AVRG: "Hey, the game is open, stop nagging the user now"
-        gameOpen: false
-    };
+    protected var _svc :Object;
 }
+
 }
