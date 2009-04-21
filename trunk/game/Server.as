@@ -75,7 +75,7 @@ public class Server extends ServerObject
                 player.joinedOn = getTimer();
                 _players[playerId] = player;
 
-                broadcast(getPlayerName(playerId) + " has logged into Wyvern.");
+                feed(getPlayerName(playerId) + " has logged into Wyvern.");
 
                 for (var stat :String in Codes.TROPHIES) {
                     checkStat(_ctrl.getPlayer(playerId), stat);
@@ -132,9 +132,14 @@ public class Server extends ServerObject
                         player.props.set(heroStat+Codes.LEVELS, int(player.props.get(heroStat+Codes.LEVELS))+level);
                         player.props.set(heroStat+Codes.COUNT, int(player.props.get(heroStat+Codes.COUNT))+1);
 
+                        if (mode == WyvernConstants.PLAYER_KILLED_MONSTER && int(Math.random()*1000) == 0) {
+                            // It's your lucky day
+                            player.awardPrize("broadcast_prize");
+                        }
+
                         if (mode == WyvernConstants.PLAYER_KILLED_PLAYER) {
                             if (victimId in _players) {
-                                broadcast(getPlayerName(killerId) + " has slain " + getPlayerName(victimId) + "!");
+                                feed(getPlayerName(killerId) + " has slain " + getPlayerName(victimId) + "!");
                             } else {
                                 log.warning("A player died in PvP, but he wasn't in the AVRG");
                             }
@@ -192,39 +197,44 @@ public class Server extends ServerObject
         if ( ! event.isFromServer()) {
             var player :PlayerSubControlServer = _ctrl.getPlayer(event.senderId);
             _ctrl.doBatch(function () :void {
-                _clientHooks[event.name].apply(this, [ player ].concat(event.value));
+                _clientHooks[event.name].apply(this, [ player, event.value ]);
             });
         }
     }
 
     protected function getPlayerName (playerId :int) :String
     {
-        return getPlayer(playerId).getPlayerName();
+        return _ctrl.getPlayer(playerId).getPlayerName();
     }
 
-    /** Award a trophy, with optional broadcasting. */
+    /** Award a trophy, with optional feed. */
     protected function awardTrophy (
         player :PlayerSubControlServer, ident :String, name :String = null) :void
     {
         if (player.awardTrophy(ident) && name != null) {
-            broadcast(getPlayerName(player.getPlayerId()) + " just earned the " + name + " trophy!");
+            feed(getPlayerName(player.getPlayerId()) + " just earned the " + name + " trophy!");
         }
     }
 
-    protected function broadcast (text :String) :void
+    protected function feed (text :String) :void
     {
-        log.info("Broadcast: " + text);
-        _ctrl.game.sendMessage("broadcast", text);
+        _ctrl.game.sendMessage("feed", text);
     }
 
     /** Functions on this object are called by client messages. */
+    // TODO: Migrate to libaduros remoting
     protected const _clientHooks :Object = {
         chosen: function (player :PlayerSubControlServer, klass :String) :void {
             player.awardPrize(klass);
             player.completeTask("chosen", 0.2); // Let them know we mean business
             player.props.set(Codes.HAS_INSTALLED, true);
-            broadcast(getPlayerName(player.getPlayerId()) + " has begun a new life as a " +
+            feed(getPlayerName(player.getPlayerId()) + " has begun a new life as a " +
                 Codes.KLASS_NAME[klass] + ".");
+            player.awardPrize("bank");
+        },
+        broadcast: function (player :PlayerSubControlServer, message :Array) :void {
+            _ctrl.game.sendMessage("broadcast",
+                [ getPlayerName(player.getPlayerId()) ].concat(message));
         }
     };
 

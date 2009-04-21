@@ -15,10 +15,12 @@ import caurina.transitions.Tweener;
 import com.bit101.components.CheckBox;
 
 import com.whirled.avrg.*;
+import com.whirled.game.GameContentEvent;
 import com.whirled.net.*;
 import com.whirled.*;
 
 import com.threerings.util.Command;
+import com.threerings.util.MethodQueue;
 import com.threerings.util.ValueEvent;
 
 public class Game extends Sprite
@@ -84,6 +86,8 @@ public class Game extends Sprite
                     removeChild(overlay);
                     _ctrl.local.feedback(
                         "Your avatar has been added to your Stuff. Wear it to start playing!");
+                    _ctrl.local.feedback(
+                        "(You have also been given a memory bank toy, place it in your room and use it to properly save your character)");
                     //Shortcut: http://www.whirled.com/#stuff-5_0_wyverns");
                 });
 
@@ -102,14 +106,14 @@ public class Game extends Sprite
 
         var padding :int = 5;
 
-        _showBroadcasts = new CheckBox();
-        _showBroadcasts.label = "Show Wyvern Feed";
-        _showBroadcasts.selected = true;
-        _showBroadcasts.x = padding;
-        _showBroadcasts.y = 4;
+        _showFeed = new CheckBox();
+        _showFeed.label = "Show Wyvern Feed";
+        _showFeed.selected = true;
+        _showFeed.x = padding;
+        _showFeed.y = 4;
 
         var toolbox :Sprite = new Sprite();
-        toolbox.addChild(_showBroadcasts);
+        toolbox.addChild(_showFeed);
 
         toolbox.graphics.beginFill(0xf3f3f3);
         toolbox.graphics.drawRect(0, 0, toolbox.width+2*padding, toolbox.height);
@@ -149,6 +153,98 @@ public class Game extends Sprite
 //        });
 
         _ctrl.game.addEventListener(MessageReceivedEvent.MESSAGE_RECEIVED, handleMessage);
+
+        _ctrl.room.addEventListener(ControlEvent.CHAT_RECEIVED, handleChat);
+    }
+
+    protected function hasItemPack (ident :String) :Boolean
+    {
+        for each (var pack :Object in _ctrl.player.getPlayerItemPacks()) {
+            if (pack.ident == ident) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getMyAvatar () :Object
+    {
+        return _ctrl.room.getEntityProperty(WyvernConstants.SERVICE_KEY,
+            _ctrl.room.getAvatarInfo(_ctrl.player.getPlayerId()).entityId);
+    }
+
+    protected function sendBroadcast (message :String) :void
+    {
+        var send :Function = function () :void {
+            var value :Array = [ message ];
+            var svc :Object = getMyAvatar();
+
+            if (svc != null) {
+                value.push(("getLevel" in svc) ? svc.getLevel() : 0);
+                value.push(("getKlassName" in svc) ? svc.getKlassName() : "??");
+            }
+
+            _ctrl.agent.sendMessage("broadcast", value);
+        };
+
+        if (Codes.isAdmin(_ctrl.player.getPlayerId())) {
+            send();
+
+        } else if (hasItemPack(Codes.BROADCAST_PACK)) {
+            var used :int = _ctrl.player.props.get(Codes.BROADCASTS_USED) + 1;
+
+            var consume :Function = function () :void {
+                send();
+                _ctrl.player.props.set(Codes.BROADCASTS_USED, used);
+            };
+
+            if (used >= Codes.BROADCAST_USES) {
+                if (_ctrl.player.requestConsumeItemPack(Codes.BROADCAST_PACK,
+                    "Your Scroll of Announcement is on its last use.")) {
+
+                    used = 0;
+                    var onConfirm :Function = function (... _) :void {
+                        _ctrl.local.feedback("Your Scroll of Announcement burns to ashes!");
+                        consume();
+                        _ctrl.player.removeEventListener(GameContentEvent.PLAYER_CONTENT_CONSUMED, onConfirm);
+                    };
+                    _ctrl.player.addEventListener(GameContentEvent.PLAYER_CONTENT_CONSUMED, onConfirm);
+                }
+
+            } else {
+                consume();
+                _ctrl.local.feedback("Your Scroll of Announcement has " +
+                    (Codes.BROADCAST_USES-used) + " uses remaining.");
+            }
+
+        } else {
+            _ctrl.local.feedback("You are missing the scroll to cast this spell: http://www.whirled.com/#shop-l_12_20");
+        }
+    }
+
+    protected function handleChat (event :ControlEvent) :void
+    {
+        // Let the chat show up on the screen first, then feedback after it
+        MethodQueue.callLater(function () :void {
+            var chatterId :int =
+                _ctrl.room.getEntityProperty(EntityControl.PROP_MEMBER_ID, event.name);
+
+            if (chatterId == _ctrl.player.getPlayerId()) {
+                var command :Array = event.value.match(/^!(\w*)\s+(.*)/);
+                if (command != null) {
+                    switch (command[1]) {
+                        case "announce": case "announcement":
+                            sendBroadcast(command[2]);
+                            break;
+
+                        default:
+                            _ctrl.local.feedback("Not a command: " + command[1]);
+                            break;
+                    }
+                }
+            }
+        });
     }
 
     protected function setAvatarEnabled (open :Boolean) :void
@@ -168,14 +264,29 @@ public class Game extends Sprite
 
     protected function handleMessage (event :MessageReceivedEvent) :void
     {
-        if (_showBroadcasts.selected && event.name == "broadcast") {
-            _ctrl.local.feedback(String(event.value));
+        switch (event.name) {
+            case "feed":
+                if (_showFeed.selected) {
+                    _ctrl.local.feedback(String(event.value));
+                }
+                break;
+
+            case "broadcast":
+                var message :Array = event.value as Array;
+
+                // [ name, text, level, klass ]
+                var name :String = (message.length > 2) ?
+                    message[0] + " (Level " + message[2] + " " + message[3] + ")" :
+                    message[0];
+
+                _ctrl.local.feedback(name + " announces: " + message[1]);
+                break;
         }
     }
 
     protected var _ctrl :AVRGameControl;
 
-    protected var _showBroadcasts :CheckBox;
+    protected var _showFeed :CheckBox;
 }
 
 }
