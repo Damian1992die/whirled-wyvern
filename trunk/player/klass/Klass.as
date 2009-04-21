@@ -10,6 +10,8 @@ public interface Klass
     /** Fiddly. They have to be hidden when a helm is worn. */
     function getHairSprites () :Array;
 
+    function getName () :String;
+
     function getTraits () :Array;
 
     function getMultiplier (itemType :int) :Number;

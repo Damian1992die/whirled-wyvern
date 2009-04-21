@@ -20,6 +20,11 @@ public class Sneak
         return [ WyvernConstants.TRAIT_BACKSTAB ];
     }
 
+    public function getName () :String
+    {
+        return "Bandit";
+    }
+
     public function getMultiplier (itemType :int) :Number
     {
         switch (itemType) {
