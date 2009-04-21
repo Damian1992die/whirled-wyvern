@@ -42,6 +42,11 @@ public class Thug
         return 1;
     }
     
+    public function getName () :String
+    {
+        return "Warrior";
+    }
+
     public function handleSpecial (ctrl :AvatarControl, sprite :PlayerSprite) :Boolean
     {
         var doll :DisplayObject = sprite.getActor();

@@ -32,6 +32,11 @@ public class Mage
         return 1;
     }
 
+    public function getName () :String
+    {
+        return "Arcanist";
+    }
+
     public function handleSpecial (ctrl :AvatarControl, sprite :PlayerSprite) :Boolean
     {
         // TODO: Play a sound here
