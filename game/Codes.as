@@ -16,6 +16,12 @@ public class Codes
     public static const LEVELS :String = "levels";
     public static const COUNT :String = "count";
 
+    public static const BROADCAST_PACK :String = "broadcast_pack";
+
+    /** Broadcasts used since last pack consumption. */
+    public static const BROADCASTS_USED :String = NetConstants.makePersistent("b");
+    public static const BROADCAST_USES :int = 3;
+
     public static const KLASS_NAME :Object = {
         thug: "Warrior",
         sneak: "Bandit",
@@ -59,6 +65,11 @@ public class Codes
             [ 6*HOURS, "Hero of Time" ],
         ]
     };
+
+    public static function isAdmin (playerId :int) :Boolean
+    {
+        return false;//playerId == 878;
+    }
 }
 
 }
