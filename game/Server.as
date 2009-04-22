@@ -115,7 +115,7 @@ public class Server extends ServerObject
                 var data :Array = event.value as Array;
                 var killerId :int = data[0];
                 var victimId :int = data[1];
-                var level :int = data[2];
+                var level :int = Math.min(data[2], 120); // Capped at 120
                 var mode :int = data[3];
 
                 // TODO: Maybe not allow players to earn credit from killing their own monsters
@@ -127,22 +127,30 @@ public class Server extends ServerObject
                     if (killerId in _players) {
                         var player :PlayerSubControlServer = _ctrl.getPlayer(killerId);
                         var heroStat :String = Codes.HERO+mode;
+                        var entry :PlayerEntry = _players[killerId];
+                        var now :int = flash.utils.getTimer();
 
-                        player.completeTask("hero_"+heroStat, level/120); // TODO: Tweak
-                        player.props.set(heroStat+Codes.LEVELS, int(player.props.get(heroStat+Codes.LEVELS))+level);
-                        player.props.set(heroStat+Codes.COUNT, int(player.props.get(heroStat+Codes.COUNT))+1);
+                        if (now - entry.lastKill > 0.25*level*1000) {
+                            player.completeTask("hero_"+heroStat, level/120); // TODO: Tweak
+                            player.props.set(heroStat+Codes.LEVELS, int(player.props.get(heroStat+Codes.LEVELS))+level);
+                            player.props.set(heroStat+Codes.COUNT, int(player.props.get(heroStat+Codes.COUNT))+1);
 
-                        if (mode == WyvernConstants.PLAYER_KILLED_MONSTER && int(Math.random()*1000) == 0) {
-                            // It's your lucky day
-                            player.awardPrize("broadcast_prize");
-                        }
+                            entry.lastKill = now;
 
-                        if (mode == WyvernConstants.PLAYER_KILLED_PLAYER) {
-                            if (victimId in _players) {
-                                feed(getPlayerName(killerId) + " has slain " + getPlayerName(victimId) + "!");
-                            } else {
-                                log.warning("A player died in PvP, but he wasn't in the AVRG");
+                            if (mode == WyvernConstants.PLAYER_KILLED_MONSTER && int(Math.random()*1000) == 0) {
+                                // It's your lucky day
+                                player.awardPrize("broadcast_prize");
                             }
+
+                            if (mode == WyvernConstants.PLAYER_KILLED_PLAYER) {
+                                if (victimId in _players) {
+                                    feed(getPlayerName(killerId) + " has slain " + getPlayerName(victimId) + "!");
+                                } else {
+                                    log.warning("A player died in PvP, but he wasn't in the AVRG");
+                                }
+                            }
+                        } else {
+                            // You just killed something way too fast. No credit for you!
                         }
                     } else {
                         log.warning("A player killed something, but he wasn't in the AVRG");
