@@ -100,7 +100,7 @@ public class Monster_@MONSTER_NAME@ extends Sprite
         addChild(_quest);
 
         _ctrl.addEventListener(TimerEvent.TIMER, tick);
-        _ctrl.setTickInterval(9000);
+        _ctrl.setTickInterval(6000);
 
         handleMemory();
 
