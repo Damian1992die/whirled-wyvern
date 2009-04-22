@@ -118,8 +118,6 @@ public class Server extends ServerObject
                 var level :int = Math.min(data[2], 120); // Capped at 120
                 var mode :int = data[3];
 
-                // TODO: Maybe not allow players to earn credit from killing their own monsters
-
                 // A hero should be awarded
                 if (mode == WyvernConstants.PLAYER_KILLED_MONSTER ||
                     mode == WyvernConstants.PLAYER_KILLED_PLAYER) {
@@ -130,7 +128,7 @@ public class Server extends ServerObject
                         var entry :PlayerEntry = _players[killerId];
                         var now :int = flash.utils.getTimer();
 
-                        if (now - entry.lastKill > 0.25*level*1000) {
+                        if (now - entry.lastKill > level*1000/3) {
                             player.completeTask("hero_"+heroStat, level/120); // TODO: Tweak
                             player.props.set(heroStat+Codes.LEVELS, int(player.props.get(heroStat+Codes.LEVELS))+level);
                             player.props.set(heroStat+Codes.COUNT, int(player.props.get(heroStat+Codes.COUNT))+1);
@@ -158,8 +156,10 @@ public class Server extends ServerObject
                 }
 
                 // Award the dungeon keeper
-                if (mode == WyvernConstants.PLAYER_KILLED_MONSTER ||
-                    mode == WyvernConstants.MONSTER_KILLED_PLAYER) {
+                if (killerId != victimId && (
+                    mode == WyvernConstants.PLAYER_KILLED_MONSTER ||
+                    mode == WyvernConstants.MONSTER_KILLED_PLAYER)) {
+
                     var keeperId :int =
                         (mode == WyvernConstants.PLAYER_KILLED_MONSTER) ? victimId : killerId;
                     var keeperStat :String = Codes.KEEPER+mode;
