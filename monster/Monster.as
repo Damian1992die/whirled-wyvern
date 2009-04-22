@@ -27,11 +27,67 @@ public class Monster_@MONSTER_NAME@ extends Sprite
     {
         _ctrl = new PetControl(this);
 
+        _svc = {
+            getState: function () :String {
+                return (_quest.getHealth() == 0) ? WyvernConstants.STATE_DEAD : _ctrl.getState();
+            },
+
+            getIdent: function () :String {
+                return _ctrl.getMyEntityId();
+            },
+
+            getFaction: function () :String {
+                return WyvernConstants.FACTION_MONSTER;
+            },
+
+            getPower: function () :Number {
+                return @MONSTER_LEVEL@/6 + 1;
+            },
+
+            getDefence: function () :Number {
+                return @MONSTER_LEVEL@/2 + 1;
+            },
+
+            getRange: function () :Number {
+                return @RANGE@*400;
+            },
+
+            getLevel: function () :int {
+                return _quest.getLevel();
+            },
+
+            awardRandomItem: function (level :int) :void {
+                // Nothing
+            },
+
+            awardXP: function (amount :int) :void {
+                // We killed something
+                switchTarget();
+            },
+
+            revive: function () :void {
+                //if (_ctrl.hasControl() && _quest.getHealth() <= 0) {
+                if (_quest.getHealth() <= 0) {
+                    _ctrl.setMemory("health", _quest.getMaxHealth());
+                }
+            },
+
+            hasTrait: function () :Boolean {
+                return false; // TODO?
+            },
+
+            damage: function (
+                source :Object, amount :Number, cause :Object = null, ignoreArmor :Boolean = false) :void {
+                //if (_ctrl.hasControl()) {
+                    _quest.damage(source, amount, cause, ignoreArmor);
+                //}
+            }
+        };
+
         _ctrl.registerPropertyProvider(propertyProvider);
 
         _ctrl.addEventListener(ControlEvent.MESSAGE_RECEIVED, handleMessage);
         _ctrl.addEventListener(ControlEvent.ENTITY_MOVED, handleMovement);
-        Command.bind(_ctrl, ControlEvent.CONTROL_ACQUIRED, checkNewInstall);
         Command.bind(_ctrl, ControlEvent.MEMORY_CHANGED, handleMemory);
 
         _grave = Bitmap(new GRAVE());
@@ -52,6 +108,7 @@ public class Monster_@MONSTER_NAME@ extends Sprite
             _soundAttack.play();
         //}
         checkRespawn();
+        checkNewInstall();
     }
 
     protected function checkRespawn () :void
@@ -72,7 +129,7 @@ public class Monster_@MONSTER_NAME@ extends Sprite
     {
         if (_ctrl.getMemory("xp") == null) {
             _ctrl.setMemory("xp", WyvernUtil.getXp(@MONSTER_LEVEL@)+1,
-                function (success :Boolean) :void {
+                function (... _) :void {
                     _ctrl.setMemory("health", _quest.getMaxHealth());
                 });
         }
@@ -80,20 +137,22 @@ public class Monster_@MONSTER_NAME@ extends Sprite
 
     protected function tick (event :TimerEvent) :void
     {
-        checkRespawn();
+        _ctrl.doBatch(function () :void {
+            checkRespawn();
 
-        if (_svc.getState() == WyvernConstants.STATE_DEAD) {
-            return;
-        }
+            if (_svc.getState() == WyvernConstants.STATE_DEAD) {
+                return;
+            }
 
-        if (_quest.getHealth()/_quest.getMaxHealth() < 0.25) {
-            _hunting = null;
-            _ctrl.setState(WyvernConstants.STATE_HEAL);
-            wander(); // Flee!
-        } else {
-            switchTarget();
-            _ctrl.setState(WyvernConstants.STATE_ATTACK);
-        }
+            if (_quest.getHealth()/_quest.getMaxHealth() < 0.25) {
+                _hunting = null;
+                _ctrl.setState(WyvernConstants.STATE_HEAL);
+                wander(); // Flee!
+            } else {
+                switchTarget();
+                _ctrl.setState(WyvernConstants.STATE_ATTACK);
+            }
+        });
     }
 
     protected function wander () :void
@@ -236,62 +295,6 @@ public class Monster_@MONSTER_NAME@ extends Sprite
     // Who I'm hunting. WARNING: This isn't preserved
     protected var _hunting :String;
 
-    // Bye bye type checking
-    protected const _svc :Object = {
-        getState: function () :String {
-            return (_quest.getHealth() == 0) ? WyvernConstants.STATE_DEAD : _ctrl.getState();
-        },
-
-        getIdent: function () :String {
-            return _ctrl.getMyEntityId();
-        },
-
-        getFaction: function () :String {
-            return WyvernConstants.FACTION_MONSTER;
-        },
-
-        getPower: function () :Number {
-            return @MONSTER_LEVEL@/6 + 1;
-        },
-
-        getDefence: function () :Number {
-            return @MONSTER_LEVEL@/2 + 1;
-        },
-
-        getRange: function () :Number {
-            return @RANGE@*400;
-        },
-
-        getLevel: function () :int {
-            return _quest.getLevel();
-        },
-
-        awardRandomItem: function (level :int) :void {
-            // Nothing
-        },
-
-        awardXP: function (amount :int) :void {
-            // We killed something
-            switchTarget();
-        },
-
-        revive: function () :void {
-            //if (_ctrl.hasControl() && _quest.getHealth() <= 0) {
-            if (_quest.getHealth() <= 0) {
-                _ctrl.setMemory("health", _quest.getMaxHealth());
-            }
-        },
-
-        hasTrait: function () :Boolean {
-            return false; // TODO?
-        },
-
-        damage: function (
-            source :Object, amount :Number, cause :Object = null, ignoreArmor :Boolean = false) :void {
-            //if (_ctrl.hasControl()) {
-                _quest.damage(source, amount, cause, ignoreArmor);
-            //}
-        }
-    };
+    protected var _svc :Object;
 }
 }
