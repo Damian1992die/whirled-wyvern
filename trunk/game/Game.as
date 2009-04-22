@@ -38,6 +38,49 @@ public class Game extends Sprite
         // TODO: Adapt to screen resizes
         var screen :Rectangle = _ctrl.local.getPaintableArea();
 
+        var padding :int = 5;
+
+        _showFeed = new CheckBox();
+        _showFeed.label = "Show Wyvern Feed";
+        _showFeed.selected = true;
+        _showFeed.x = padding;
+        _showFeed.y = 4;
+
+        var toolbox :Sprite = new Sprite();
+        toolbox.addChild(_showFeed);
+
+        toolbox.graphics.beginFill(0xf3f3f3);
+        toolbox.graphics.drawRect(0, 0, toolbox.width+2*padding, toolbox.height);
+        toolbox.graphics.endFill();
+
+        addChild(toolbox);
+
+        // Slide to top right
+        toolbox.y = screen.height-toolbox.height;
+        Tweener.addTween(toolbox, { x: screen.width-toolbox.width, transition: "linear", time:1.5 });
+
+        _ctrl.local.addEventListener(AVRGameControlEvent.SIZE_CHANGED, function (... _) :void {
+            var screen :Rectangle = _ctrl.local.getPaintableArea();
+            if (screen != null) {
+                toolbox.x = screen.width - toolbox.width;
+                toolbox.y = screen.height - toolbox.height;
+            }
+        });
+
+        // Yes, this is really dumb
+        var timer :Timer = new Timer(10000);
+        Command.bind(timer, TimerEvent.TIMER, setAvatarEnabled, true);
+        Command.bind(_ctrl, Event.UNLOAD, timer.stop);
+        timer.start();
+        setAvatarEnabled(true);
+
+        _ctrl.game.addEventListener(MessageReceivedEvent.MESSAGE_RECEIVED, handleMessage);
+        _ctrl.room.addEventListener(ControlEvent.CHAT_RECEIVED, handleChat);
+        _ctrl.player.addEventListener(AVRGamePlayerEvent.ENTERED_ROOM, onFirstRoom);
+    }
+
+    protected function onFirstRoom (... _) :void
+    {
         if (_ctrl.player.props.get(Codes.HAS_INSTALLED) != null) {
             _ctrl.player.doBatch(function () :void {
                 // Cash out their dungeon keeper cred
@@ -77,6 +120,8 @@ public class Game extends Sprite
 
             var overlay :Sprite = new NewCharacterOverlay();
 
+            var screen :Rectangle = _ctrl.local.getPaintableArea();
+
             overlay.x = (screen.width - overlay.width)/2;
             overlay.y = (screen.height - overlay.height)/2;
 
@@ -104,57 +149,8 @@ public class Game extends Sprite
             addChild(overlay);
         }
 
-        var padding :int = 5;
-
-        _showFeed = new CheckBox();
-        _showFeed.label = "Show Wyvern Feed";
-        _showFeed.selected = true;
-        _showFeed.x = padding;
-        _showFeed.y = 4;
-
-        var toolbox :Sprite = new Sprite();
-        toolbox.addChild(_showFeed);
-
-        toolbox.graphics.beginFill(0xf3f3f3);
-        toolbox.graphics.drawRect(0, 0, toolbox.width+2*padding, toolbox.height);
-        toolbox.graphics.endFill();
-
-        addChild(toolbox);
-
-        // Slide to top right
-        toolbox.y = screen.height-toolbox.height;
-        Tweener.addTween(toolbox, { x: screen.width-toolbox.width, transition: "linear", time:1.5 });
-
-        // Yes, this is really dumb
-        var timer :Timer = new Timer(10000);
-        Command.bind(timer, TimerEvent.TIMER, setAvatarEnabled, true);
-        Command.bind(_ctrl, Event.UNLOAD, timer.stop);
-        timer.start();
-        setAvatarEnabled(true);
-
-        //Command.bind(_ctrl.game, AVRGameControlEvent.PLAYER_JOINED_GAME, setAvatarEnabled, true);
-        
-        // This doesn't work
-        // Command.bind(root.loaderInfo, Event.UNLOAD, setAvatarEnabled, false);
-
-//        _ctrl.room.addEventListener(AVRGameRoomEvent.AVATAR_CHANGED, function (event :AVRGameRoomEvent) :void {
-//            if (event.value == _ctrl.player.getPlayerId()) {
-//                setAvatarEnabled(true);
-//            }
-//        });
-
-        // Yes, this is fired more than usual
-        // Doesn't really seem to work either
-//        _ctrl.room.addEventListener(AVRGameRoomEvent.SIGNAL_RECEIVED, function (event :AVRGameRoomEvent) :void {
-//            toolbox.y += 100;
-//            if (event.name == WyvernConstants.KILL_SIGNAL) {
-//                setAvatarEnabled(true);
-//            }
-//        });
-
-        _ctrl.game.addEventListener(MessageReceivedEvent.MESSAGE_RECEIVED, handleMessage);
-
-        _ctrl.room.addEventListener(ControlEvent.CHAT_RECEIVED, handleChat);
+        // Only trigger once
+        _ctrl.player.removeEventListener(AVRGamePlayerEvent.ENTERED_ROOM, onFirstRoom);
     }
 
     protected function hasItemPack (ident :String) :Boolean
