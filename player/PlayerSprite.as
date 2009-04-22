@@ -28,6 +28,10 @@ public class PlayerSprite extends WyvernSprite
 
     override protected function tick () :void
     {
+        if (_ctrl.isSleeping()) {
+            return;
+        }
+
         super.tick();
 
         var mana :Number = getMana();
