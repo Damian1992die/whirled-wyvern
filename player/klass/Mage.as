@@ -40,6 +40,7 @@ public class Mage
     public function handleSpecial (ctrl :AvatarControl, sprite :PlayerSprite) :Boolean
     {
         // TODO: Play a sound here
+        _specialSound.play();
 
         if ( ! ctrl.hasControl()) {
             return true;
@@ -69,6 +70,10 @@ public class Mage
             return false;
         }
     }
+
+    [Embed(source="../rsrc/mage_special.mp3")]
+    protected static const SPECIAL_SOUND :Class;
+    protected var _specialSound :Sound = new SPECIAL_SOUND as Sound;
 }
 
 }
