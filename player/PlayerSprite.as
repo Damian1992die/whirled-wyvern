@@ -28,7 +28,7 @@ public class PlayerSprite extends WyvernSprite
 
     override protected function tick () :void
     {
-        if (_ctrl.isSleeping()) {
+        if ((_ctrl as AvatarControl).isSleeping()) {
             return;
         }
 
