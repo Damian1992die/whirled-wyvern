@@ -5,6 +5,11 @@ import flash.utils.getTimer;
 
 import com.threerings.util.Log;
 
+import aduros.net.REMOTE;
+import aduros.net.RemoteCaller;
+import aduros.net.RemoteProvider;
+import aduros.util.F;
+
 import com.whirled.avrg.*;
 import com.whirled.net.*;
 import com.whirled.*;
@@ -18,7 +23,9 @@ public class Server extends ServerObject
         _ctrl = new AVRServerGameControl(this);
         _ctrl.game.addEventListener(AVRGameControlEvent.PLAYER_JOINED_GAME, handlePlayerJoin);
         _ctrl.game.addEventListener(AVRGameControlEvent.PLAYER_QUIT_GAME, handlePlayerQuit);
-        _ctrl.game.addEventListener(MessageReceivedEvent.MESSAGE_RECEIVED, handleMessage);
+
+        new RemoteProvider(_ctrl.game, "s", F.konst(this));
+        _gameReceiver = new RemoteCaller(_ctrl.game, "c");
     }
 
     protected function getPlayer (playerId :int) :PlayerEntry
@@ -200,16 +207,6 @@ public class Server extends ServerObject
         }
     }
 
-    protected function handleMessage (event :MessageReceivedEvent) :void
-    {
-        if ( ! event.isFromServer()) {
-            var player :PlayerSubControlServer = _ctrl.getPlayer(event.senderId);
-            _ctrl.doBatch(function () :void {
-                _clientHooks[event.name].apply(this, [ player, event.value ]);
-            });
-        }
-    }
-
     protected function getPlayerName (playerId :int) :String
     {
         return _ctrl.getPlayer(playerId).getPlayerName();
@@ -229,22 +226,22 @@ public class Server extends ServerObject
         _ctrl.game.sendMessage("feed", text);
     }
 
-    /** Functions on this object are called by client messages. */
-    // TODO: Migrate to libaduros remoting
-    protected const _clientHooks :Object = {
-        chosen: function (player :PlayerSubControlServer, klass :String) :void {
-            player.awardPrize(klass);
-            player.completeTask("chosen", 0.2); // Let them know we mean business
-            player.props.set(Codes.HAS_INSTALLED, true);
-            feed(getPlayerName(player.getPlayerId()) + " has begun a new life as a " +
-                Codes.KLASS_NAME[klass] + ".");
-            player.awardPrize("bank");
-        },
-        broadcast: function (player :PlayerSubControlServer, message :Array) :void {
-            _ctrl.game.sendMessage("broadcast",
-                [ getPlayerName(player.getPlayerId()) ].concat(message));
-        }
-    };
+    REMOTE function chosen (playerId :int, klass :String) :void
+    {
+        var player :PlayerSubControlServer = _ctrl.getPlayer(playerId);
+
+        player.awardPrize(klass);
+        player.completeTask("chosen", 0.2); // Let them know we mean business
+        player.props.set(Codes.HAS_INSTALLED, true);
+        feed(getPlayerName(playerId) + " has begun a new life as a " +
+            Codes.KLASS_NAME[klass] + ".");
+        player.awardPrize("bank");
+    }
+
+    REMOTE function broadcast (playerId :int, message :Array) :void
+    {
+        _gameReceiver.apply("broadcast", [ getPlayerName(playerId) ].concat(message));
+    }
 
     /** Maps player ID to scene ID. */
     protected var _players :Dictionary = new Dictionary();
@@ -255,6 +252,9 @@ public class Server extends ServerObject
     protected var _roomToPopulation :Dictionary = new Dictionary();
 
     protected var _ctrl :AVRServerGameControl;
+
+    /** For calling functions on the client. */
+    protected var _gameReceiver :RemoteCaller;
 }
 
 }
