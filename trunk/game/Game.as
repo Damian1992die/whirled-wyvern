@@ -234,9 +234,9 @@ public class Game extends Sprite
                 _ctrl.room.getEntityProperty(EntityControl.PROP_MEMBER_ID, event.name);
 
             if (chatterId == _ctrl.player.getPlayerId()) {
-                var command :Array = event.value.match(/^!(\w*)\s+(.*)/i);
+                var command :Array = event.value.match(/^!(\w*)\s+(.*)/);
                 if (command != null) {
-                    switch (command[1]) {
+                    switch (command[1].toLowerCase()) {
                         case "announce": case "announcement":
                             sendBroadcast(command[2]);
                             break;
