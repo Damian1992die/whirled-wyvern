@@ -14,14 +14,19 @@ import caurina.transitions.Tweener;
 //import fl.skins.DefaultCheckBoxSkins;
 import com.bit101.components.CheckBox;
 
+import com.threerings.util.Command;
+import com.threerings.util.MethodQueue;
+import com.threerings.util.ValueEvent;
+
+import aduros.net.REMOTE;
+import aduros.net.RemoteProvider;
+import aduros.net.RemoteProxy;
+import aduros.util.F;
+
 import com.whirled.avrg.*;
 import com.whirled.game.GameContentEvent;
 import com.whirled.net.*;
 import com.whirled.*;
-
-import com.threerings.util.Command;
-import com.threerings.util.MethodQueue;
-import com.threerings.util.ValueEvent;
 
 public class Game extends Sprite
 {
@@ -34,6 +39,9 @@ public class Game extends Sprite
         if ( ! _ctrl.isConnected()) {
             return;
         }
+
+        new RemoteProvider(_ctrl.game, "c", F.konst(this));
+        _gameService = new RemoteProxy(_ctrl.agent, "s");
 
         // TODO: Adapt to screen resizes
         var screen :Rectangle = _ctrl.local.getPaintableArea();
@@ -74,7 +82,6 @@ public class Game extends Sprite
         timer.start();
         setAvatarEnabled(true);
 
-        _ctrl.game.addEventListener(MessageReceivedEvent.MESSAGE_RECEIVED, handleMessage);
         _ctrl.room.addEventListener(ControlEvent.CHAT_RECEIVED, handleChat);
         _ctrl.player.addEventListener(AVRGamePlayerEvent.ENTERED_ROOM, onFirstRoom);
     }
@@ -127,7 +134,7 @@ public class Game extends Sprite
 
             overlay.addEventListener(NewCharacterOverlay.EVENT_CHOSEN,
                 function (event :ValueEvent) :void {
-                    _ctrl.agent.sendMessage("chosen", event.value);
+                    _gameService.chosen(event.value);
                     removeChild(overlay);
                     _ctrl.local.feedback(
                         "Your avatar has been added to your Stuff. Wear it to start playing!");
@@ -181,7 +188,7 @@ public class Game extends Sprite
                 value.push(("getKlassName" in svc) ? svc.getKlassName() : "??");
             }
 
-            _ctrl.agent.sendMessage("broadcast", value);
+            _gameService.broadcast(value);
         };
 
         if (Codes.isAdmin(_ctrl.player.getPlayerId())) {
@@ -258,31 +265,29 @@ public class Game extends Sprite
         }
     }
 
-    protected function handleMessage (event :MessageReceivedEvent) :void
+    REMOTE function feed (text :String) :void
     {
-        switch (event.name) {
-            case "feed":
-                if (_showFeed.selected) {
-                    _ctrl.local.feedback(String(event.value));
-                }
-                break;
-
-            case "broadcast":
-                var message :Array = event.value as Array;
-
-                // [ name, text, level, klass ]
-                var name :String = (message.length > 2) ?
-                    message[0] + " (Level " + message[2] + " " + message[3] + ")" :
-                    message[0];
-
-                _ctrl.local.feedback(name + " announces: " + message[1]);
-                break;
+        if (_showFeed.selected) {
+            _ctrl.local.feedback(text);
         }
+    }
+
+    REMOTE function broadcast (message :Array) :void
+    {
+        // [ name, text, level, klass ]
+        var name :String = (message.length > 2) ?
+            message[0] + " (Level " + message[2] + " " + message[3] + ")" :
+            message[0];
+
+        _ctrl.local.feedback(name + " announces: " + message[1]);
     }
 
     protected var _ctrl :AVRGameControl;
 
     protected var _showFeed :CheckBox;
+
+    /** For calling functions on the server. */
+    protected var _gameService :RemoteProxy;
 }
 
 }
