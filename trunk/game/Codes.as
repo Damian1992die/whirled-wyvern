@@ -66,9 +66,28 @@ public class Codes
         ]
     };
 
+    /** Sets of values manipulated by admins, stored server-side. */
+    public static const DATA_SETS :Array = [ "avatar", "ban" ];
+
     public static function isAdmin (playerId :int) :Boolean
     {
-        return false;//playerId == 878;
+        return playerId == 878; // Aduros
+    }
+
+    public static function requireAdmin (playerId :int) :void
+        // throws Error
+    {
+        if (!isAdmin(playerId)) {
+            throw new Error("Access denied: " + playerId + " is not an admin.");
+        }
+    }
+
+    public static function requireValidSet (setName :String) :void
+        // throws Error
+    {
+        if (Codes.DATA_SETS.indexOf(setName) == -1) {
+            throw new Error("Invalid set name: " + setName);
+        }
     }
 }
 

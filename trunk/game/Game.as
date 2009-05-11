@@ -41,6 +41,7 @@ public class Game extends Sprite
         }
 
         new RemoteProvider(_ctrl.game, "c", F.konst(this));
+        new RemoteProvider(_ctrl.player, "player", F.konst(this));
         _gameService = new RemoteProxy(_ctrl.agent, "s");
 
         // TODO: Adapt to screen resizes
@@ -241,6 +242,27 @@ public class Game extends Sprite
                             sendBroadcast(command[2]);
                             break;
 
+                        case "add":
+                            var tokens :Array = command[2].match(/(\w*?)\s+(.*)/);
+                            Codes.requireAdmin(chatterId);
+                            Codes.requireValidSet(tokens[1]);
+                            _gameService.addToSet(tokens[1], int(tokens[2]));
+                            break;
+
+                        case "remove":
+                            var tokens :Array = command[2].match(/(\w*?)\s+(.*)/);
+                            Codes.requireAdmin(chatterId);
+                            Codes.requireValidSet(tokens[1]);
+                            _gameService.removeFromSet(tokens[1], int(tokens[2]));
+                            break;
+
+                        case "show":
+                            Codes.requireAdmin(chatterId);
+                            Codes.requireValidSet(command[2]);
+                            _gameService.requestShowSet(command[2]);
+
+                            break;
+
                         default:
                             _ctrl.local.feedback("Not a command: " + command[1]);
                             break;
@@ -280,6 +302,12 @@ public class Game extends Sprite
             message[0];
 
         _ctrl.local.feedback(name + " announces: " + message[1]);
+    }
+
+    REMOTE function respondShowSet (setName :String, values :Array) :void
+    {
+        _ctrl.local.feedback("= Collection: " + setName);
+        _ctrl.local.feedback("= " + values.join(", "));
     }
 
     protected var _ctrl :AVRGameControl;
