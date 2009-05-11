@@ -4,6 +4,7 @@ import flash.utils.Dictionary;
 import flash.utils.getTimer;
 
 import com.threerings.util.Log;
+import com.threerings.util.MethodQueue;
 
 import aduros.net.REMOTE;
 import aduros.net.RemoteCaller;
@@ -63,10 +64,11 @@ public class Server extends ServerObject
             log.warning);
 
         delete _players[playerId];
-        //var player :PlayerSubControlServer = _ctrl.getPlayer(event.value as int);
-        //player.props.removeEventListener(PropertyChangedEvent.PROPERTY_CHANGED, handlePlayerChanged);
-        //player.removeEventListener(AVRGamePlayerEvent.ENTERED_ROOM, handleRoomEntry);
-        //player.removeEventListener(AVRGamePlayerEvent.LEFT_ROOM, handleRoomExit);
+    }
+
+    protected function contains (setName :String, value :int) :Boolean
+    {
+        return value in _ctrl.props.get("@set:" + setName);
     }
 
     protected function handleRoomEntry (event :AVRGamePlayerEvent) :void
@@ -80,15 +82,22 @@ public class Server extends ServerObject
                 // The player is just logging in
                 player = new PlayerEntry(roomId);
                 player.joinedOn = getTimer();
+                player.ctrl = _ctrl.getPlayer(playerId);
+                player.playerReceiver = new RemoteCaller(player.ctrl, "player");
+
                 _players[playerId] = player;
 
-                feed(getPlayerName(playerId) + " has logged into Wyvern.");
+                if (contains("ban", playerId) && !Codes.isAdmin(playerId)) {
+                    player.ctrl.deactivateGame();
 
-                for (var stat :String in Codes.TROPHIES) {
-                    checkStat(_ctrl.getPlayer(playerId), stat);
+                } else {
+                    feed(getPlayerName(playerId) + " has logged into Wyvern.");
+
+                    for (var stat :String in Codes.TROPHIES) {
+                        checkStat(player.ctrl, stat);
+                    }
                 }
             }
-
             player.roomId = roomId;
 
             var room :RoomEntry = getRoom(roomId);
@@ -97,7 +106,6 @@ public class Server extends ServerObject
                 _rooms[roomId] = room;
                 _ctrl.getRoom(roomId).addEventListener(AVRGameRoomEvent.SIGNAL_RECEIVED, handleSignal);
             }
-
             room.population = room.population + 1;
         });
     }
@@ -230,17 +238,55 @@ public class Server extends ServerObject
     {
         var player :PlayerSubControlServer = _ctrl.getPlayer(playerId);
 
-        player.awardPrize(klass);
-        player.completeTask("chosen", 0.2); // Let them know we mean business
-        player.props.set(Codes.HAS_INSTALLED, true);
-        feed(getPlayerName(playerId) + " has begun a new life as a " +
-            Codes.KLASS_NAME[klass] + ".");
-        player.awardPrize("bank");
+        player.doBatch(function () :void {
+            player.awardPrize(klass);
+            player.completeTask("chosen", 0.2); // Let them know we mean business
+            player.props.set(Codes.HAS_INSTALLED, true);
+            feed(getPlayerName(playerId) + " has begun a new life as a " +
+                Codes.KLASS_NAME[klass] + ".");
+            player.awardPrize("bank");
+        });
     }
 
     REMOTE function broadcast (playerId :int, message :Array) :void
     {
         _gameReceiver.apply("broadcast", [ getPlayerName(playerId) ].concat(message));
+    }
+
+    REMOTE function addToSet (playerId :int, setName :String, value :int) :void
+    {
+        Codes.requireAdmin(playerId);
+        Codes.requireValidSet(setName);
+
+        _ctrl.props.setIn("@set:"+setName, value, true);
+
+        log.info("Added value to collection", "setName", setName, "value", value);
+    }
+
+    REMOTE function removeFromSet (playerId :int, setName :String, value :int) :void
+    {
+        Codes.requireAdmin(playerId);
+        Codes.requireValidSet(setName);
+
+        _ctrl.props.setIn("@set:"+setName, value, null);
+
+        log.info("Removed value from collection", "setName", setName, "value", value);
+    }
+
+    REMOTE function requestShowSet (playerId :int, setName :String) :void
+    {
+        Codes.requireAdmin(playerId);
+        Codes.requireValidSet(setName);
+
+        var player :PlayerEntry = getPlayer(playerId);
+
+        var set :Object = _ctrl.props.get("@set:"+setName);
+        var result :Array = [];
+        for (var entry :String in set) {
+            result.push(entry);
+        }
+
+        player.playerReceiver.apply("respondShowSet", setName, result);
     }
 
     /** Maps player ID to scene ID. */
