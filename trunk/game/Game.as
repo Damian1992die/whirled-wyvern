@@ -158,8 +158,8 @@ public class Game extends Sprite
                     removeChild(overlay);
                     _ctrl.local.feedback(
                         "Your avatar has been added to your Stuff. Wear it to start playing!");
-                    _ctrl.local.feedback(
-                        "(You have also been given a memory bank toy, place it in your room and use it to properly save your character)");
+//                    _ctrl.local.feedback(
+//                        "(You have also been given a memory bank toy, place it in your room and use it to properly save your character)");
                     //Shortcut: http://www.whirled.com/#stuff-5_0_wyverns");
                 });
 
