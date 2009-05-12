@@ -139,6 +139,11 @@ public class Server extends ServerObject
 
                     if (killerId in _players) {
                         var player :PlayerSubControlServer = _ctrl.getPlayer(killerId);
+
+                        if (!contains("avatar", player.props.get("avatarId") as int)) {
+                            return; // Unapproved avatar, ignore
+                        }
+
                         var heroStat :String = Codes.HERO+mode;
                         var entry :PlayerEntry = _players[killerId];
                         var now :int = flash.utils.getTimer();
@@ -231,7 +236,7 @@ public class Server extends ServerObject
 
     protected function feed (text :String) :void
     {
-        _ctrl.game.sendMessage("feed", text);
+        _gameReceiver.apply("feed", text);
     }
 
     REMOTE function chosen (playerId :int, klass :String) :void
@@ -258,9 +263,10 @@ public class Server extends ServerObject
         Codes.requireAdmin(playerId);
         Codes.requireValidSet(setName);
 
-        _ctrl.props.setIn("@set:"+setName, value, true);
+        _ctrl.props.setIn("@set:"+setName, value, true, true);
 
-        log.info("Added value to collection", "setName", setName, "value", value);
+        log.info("Added value to collection", "adminId", playerId, "setName", setName, "value", value);
+        REMOTE::requestShowSet(playerId, setName);
     }
 
     REMOTE function removeFromSet (playerId :int, setName :String, value :int) :void
@@ -268,9 +274,10 @@ public class Server extends ServerObject
         Codes.requireAdmin(playerId);
         Codes.requireValidSet(setName);
 
-        _ctrl.props.setIn("@set:"+setName, value, null);
+        _ctrl.props.setIn("@set:"+setName, value, null, true);
 
-        log.info("Removed value from collection", "setName", setName, "value", value);
+        log.info("Removed value from collection", "adminId", playerId, "setName", setName, "value", value);
+        REMOTE::requestShowSet(playerId, setName);
     }
 
     REMOTE function requestShowSet (playerId :int, setName :String) :void
