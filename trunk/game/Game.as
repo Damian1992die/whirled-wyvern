@@ -84,7 +84,26 @@ public class Game extends Sprite
         setAvatarEnabled(true);
 
         _ctrl.room.addEventListener(ControlEvent.CHAT_RECEIVED, handleChat);
+        _ctrl.room.addEventListener(AVRGameRoomEvent.AVATAR_CHANGED, handleAvatarChanged);
         _ctrl.player.addEventListener(AVRGamePlayerEvent.ENTERED_ROOM, onFirstRoom);
+
+        updateAvatar();
+    }
+
+    protected function handleAvatarChanged (event :AVRGameRoomEvent) :void
+    {
+        if (event.value == _ctrl.player.getPlayerId()) {
+            MethodQueue.callLater(updateAvatar);
+        }
+    }
+
+    protected function updateAvatar () :void
+    {
+        var avatarId :int = _ctrl.player.getAvatarMasterItemId();
+        trace("Avatar changed to " + avatarId);
+        if (_ctrl.player.props.get("avatarId") != avatarId) {
+            _ctrl.player.props.set("avatarId", avatarId);
+        }
     }
 
     protected function onFirstRoom (... _) :void
@@ -235,22 +254,27 @@ public class Game extends Sprite
                 _ctrl.room.getEntityProperty(EntityControl.PROP_MEMBER_ID, event.name);
 
             if (chatterId == _ctrl.player.getPlayerId()) {
-                var command :Array = event.value.match(/^!(\w*)\s+(.*)/);
+                var command :Array = event.value.match(/^!(\w*)\s*(.*)/);
+                var tokens :Array;
                 if (command != null) {
                     switch (command[1].toLowerCase()) {
                         case "announce": case "announcement":
                             sendBroadcast(command[2]);
                             break;
 
+                        case "whatami":
+                            _ctrl.local.feedback("Avatar ID: " + _ctrl.player.getAvatarMasterItemId());
+                            break;
+
                         case "add":
-                            var tokens :Array = command[2].match(/(\w*?)\s+(.*)/);
+                            tokens = command[2].match(/(\w*?)\s+(.*)/);
                             Codes.requireAdmin(chatterId);
                             Codes.requireValidSet(tokens[1]);
                             _gameService.addToSet(tokens[1], int(tokens[2]));
                             break;
 
                         case "remove":
-                            var tokens :Array = command[2].match(/(\w*?)\s+(.*)/);
+                            tokens = command[2].match(/(\w*?)\s+(.*)/);
                             Codes.requireAdmin(chatterId);
                             Codes.requireValidSet(tokens[1]);
                             _gameService.removeFromSet(tokens[1], int(tokens[2]));
