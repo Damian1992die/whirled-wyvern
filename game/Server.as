@@ -249,7 +249,7 @@ public class Server extends ServerObject
             player.props.set(Codes.HAS_INSTALLED, true);
             feed(getPlayerName(playerId) + " has begun a new life as a " +
                 Codes.KLASS_NAME[klass] + ".");
-            player.awardPrize("bank");
+//            player.awardPrize("bank");
         });
     }
 
@@ -264,6 +264,14 @@ public class Server extends ServerObject
         Codes.requireValidSet(setName);
 
         _ctrl.props.setIn("@set:"+setName, value, true, true);
+
+        // Also kick
+        if (setName == "ban") {
+            var player :PlayerEntry = getPlayer(playerId);
+            if (player != null) {
+                player.ctrl.deactivateGame();
+            }
+        }
 
         log.info("Added value to collection", "adminId", playerId, "setName", setName, "value", value);
         REMOTE::requestShowSet(playerId, setName);
