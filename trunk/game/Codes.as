@@ -71,7 +71,8 @@ public class Codes
 
     public static function isAdmin (playerId :int) :Boolean
     {
-        return playerId == 878; // Aduros
+        return playerId == 878 // Aduros
+            || playerId == 20260; // Conrad500
     }
 
     public static function requireAdmin (playerId :int) :void
