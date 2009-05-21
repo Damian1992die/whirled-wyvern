@@ -86,6 +86,7 @@ public class Game extends Sprite
         _ctrl.room.addEventListener(ControlEvent.CHAT_RECEIVED, handleChat);
         _ctrl.room.addEventListener(AVRGameRoomEvent.AVATAR_CHANGED, handleAvatarChanged);
         _ctrl.player.addEventListener(AVRGamePlayerEvent.ENTERED_ROOM, onFirstRoom);
+        _ctrl.player.addEventListener(GameContentEvent.PLAYER_CONTENT_CONSUMED, onContentConsumed);
 
         updateAvatar();
     }
@@ -197,52 +198,54 @@ public class Game extends Sprite
             _ctrl.room.getAvatarInfo(_ctrl.player.getPlayerId()).entityId);
     }
 
-    protected function sendBroadcast (message :String) :void
+    protected function requestBroadcast (message :String) :void
     {
-        var send :Function = function () :void {
-            var value :Array = [ message ];
-            var svc :Object = getMyAvatar();
-
-            if (svc != null) {
-                value.push(("getLevel" in svc) ? svc.getLevel() : 0);
-                value.push(("getKlassName" in svc) ? svc.getKlassName() : "??");
-            }
-
-            _gameService.broadcast(value);
-        };
+        _scrollMessage = message;
 
         if (Codes.isAdmin(_ctrl.player.getPlayerId())) {
-            send();
+            sendBroadcast();
 
         } else if (hasItemPack(Codes.BROADCAST_PACK)) {
             var used :int = _ctrl.player.props.get(Codes.BROADCASTS_USED) + 1;
 
             var consume :Function = function () :void {
-                send();
+                sendBroadcast();
                 _ctrl.player.props.set(Codes.BROADCASTS_USED, used);
             };
 
             if (used >= Codes.BROADCAST_USES) {
-                if (_ctrl.player.requestConsumeItemPack(Codes.BROADCAST_PACK,
-                    "Your Scroll of Announcement is on its last use.")) {
-
-                    used = 0;
-                    var onConfirm :Function = function (... _) :void {
-                        _ctrl.local.feedback("Your Scroll of Announcement burns to ashes!");
-                        consume();
-                        _ctrl.player.removeEventListener(GameContentEvent.PLAYER_CONTENT_CONSUMED, onConfirm);
-                    };
-                    _ctrl.player.addEventListener(GameContentEvent.PLAYER_CONTENT_CONSUMED, onConfirm);
-                }
+                _ctrl.player.requestConsumeItemPack(Codes.BROADCAST_PACK, "Your Scroll of Announcement is on its last use.");
 
             } else {
-                consume();
-                _ctrl.local.feedback("Your Scroll of Announcement has " +
-                    (Codes.BROADCAST_USES-used) + " uses remaining.");
+                sendBroadcast();
+                _ctrl.player.props.set(Codes.BROADCASTS_USED, used);
+                _ctrl.local.feedback("Your Scroll of Announcement has " + (Codes.BROADCAST_USES-used) + " uses remaining.");
             }
 
         } else {
             _ctrl.local.feedback("You are missing the scroll to cast this spell: http://www.whirled.com/#shop-l_12_20");
+        }
+    }
+
+    protected function sendBroadcast () :void
+    {
+        var value :Array = [ _scrollMessage ];
+        var svc :Object = getMyAvatar();
+
+        if (svc != null) {
+            value.push(("getLevel" in svc) ? svc.getLevel() : 0);
+            value.push(("getKlassName" in svc) ? svc.getKlassName() : "??");
+        }
+
+        _gameService.broadcast(value);
+    }
+
+    protected function onContentConsumed (event :GameContentEvent) :void
+    {
+        if (event.contentIdent == Codes.BROADCAST_PACK && event.contentType == GameContentEvent.ITEM_PACK) {
+            sendBroadcast();
+            _ctrl.local.feedback("Your Scroll of Announcement burns to ashes!");
+            _ctrl.player.props.set(Codes.BROADCASTS_USED, 0);
         }
     }
 
@@ -259,7 +262,7 @@ public class Game extends Sprite
                 if (command != null) {
                     switch (command[1].toLowerCase()) {
                         case "announce": case "announcement":
-                            sendBroadcast(command[2]);
+                            requestBroadcast(command[2]);
                             break;
 
                         case "whatami":
@@ -337,6 +340,9 @@ public class Game extends Sprite
     protected var _ctrl :AVRGameControl;
 
     protected var _showFeed :CheckBox;
+
+    /** Saved !announce message. */
+    protected var _scrollMessage :String;
 
     /** For calling functions on the server. */
     protected var _gameService :RemoteProxy;
