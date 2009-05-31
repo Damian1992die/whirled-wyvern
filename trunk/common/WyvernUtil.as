@@ -34,6 +34,14 @@ public class WyvernUtil
         return d2;
     }
 
+    public static function squareDistanceBetween (ctrl :EntityControl, fromId :String, otherId :String) :Number
+    {
+        var from :Array = ctrl.getEntityProperty(EntityControl.PROP_LOCATION_PIXEL, fromId) as Array;
+        var other :Array = ctrl.getEntityProperty(EntityControl.PROP_LOCATION_PIXEL, otherId) as Array;
+        var d2 :Number = (from[0]-other[0])*(from[0]-other[0]) + (from[2]-other[2])*(from[2]-other[2]);
+        return d2;
+    }
+
     public static function fetchClosest (ctrl :EntityControl, filter :Function = null) :String
     {
         var min2 :Number = Number.MAX_VALUE;
