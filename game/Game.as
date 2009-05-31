@@ -2,10 +2,11 @@ package {
 
 import flash.display.Bitmap;
 import flash.display.Sprite;
+import flash.events.Event;
+import flash.events.MouseEvent;
+import flash.events.TimerEvent;
 import flash.geom.Rectangle;
 import flash.text.TextFieldAutoSize;
-import flash.events.Event;
-import flash.events.TimerEvent;
 import flash.utils.Timer;
 
 import caurina.transitions.Tweener;
@@ -18,6 +19,8 @@ import com.threerings.util.Command;
 import com.threerings.util.MethodQueue;
 import com.threerings.util.ValueEvent;
 
+import aduros.display.ToolTipManager;
+import aduros.display.ImageButton;
 import aduros.net.REMOTE;
 import aduros.net.RemoteProvider;
 import aduros.net.RemoteProxy;
@@ -44,8 +47,7 @@ public class Game extends Sprite
         new RemoteProvider(_ctrl.player, "player", F.konst(this));
         _gameService = new RemoteProxy(_ctrl.agent, "s");
 
-        // TODO: Adapt to screen resizes
-        var screen :Rectangle = _ctrl.local.getPaintableArea();
+        var bounds :Rectangle = _ctrl.local.getPaintableArea();
 
         var padding :int = 5;
 
@@ -65,21 +67,14 @@ public class Game extends Sprite
         addChild(toolbox);
 
         // Slide to top right
-        toolbox.y = screen.height-toolbox.height;
-        Tweener.addTween(toolbox, { x: screen.width-toolbox.width, transition: "linear", time:1.5 });
-
-        _ctrl.local.addEventListener(AVRGameControlEvent.SIZE_CHANGED, function (... _) :void {
-            var screen :Rectangle = _ctrl.local.getPaintableArea();
-            if (screen != null) {
-                toolbox.x = screen.width - toolbox.width;
-                toolbox.y = screen.height - toolbox.height;
-            }
-        });
+        toolbox.y = bounds.height-toolbox.height;
+        Tweener.addTween(toolbox, { x: bounds.width-toolbox.width, transition: "linear", time:1.5 });
 
         // Yes, this is really dumb
         var timer :Timer = new Timer(10000);
         Command.bind(timer, TimerEvent.TIMER, setAvatarEnabled, true);
         Command.bind(_ctrl, Event.UNLOAD, timer.stop);
+        Command.bind(loaderInfo.loader, Event.UNLOAD, timer.stop);
         timer.start();
         setAvatarEnabled(true);
 
@@ -88,7 +83,54 @@ public class Game extends Sprite
         _ctrl.player.addEventListener(AVRGamePlayerEvent.ENTERED_ROOM, onFirstRoom);
         _ctrl.player.addEventListener(GameContentEvent.PLAYER_CONTENT_CONSUMED, onContentConsumed);
 
+        var buttonBar :Sprite = new Sprite();
+        
+        var locator :ImageButton = new ImageButton(new SEARCH_ICON(),
+            Messages.en.xlate("t_locate"));
+        locator.addEventListener(MouseEvent.CLICK, F.callback(_gameService.locatePeers));
+        //GraphicsUtil.throttleClicks(locator);
+        buttonBar.addChild(locator);
+
+        var invite :ImageButton = new ImageButton(new INVITE_ICON(),
+            Messages.en.xlate("t_invite"));
+        invite.addEventListener(MouseEvent.CLICK,
+            F.callback(_ctrl.local.showInvitePage, Messages.en.xlate("m_invite")));
+        invite.x = buttonBar.width;
+        buttonBar.addChild(invite);
+
+        var quit :ImageButton = new ImageButton(new EXIT_ICON(),
+            Messages.en.xlate("t_quit"));
+        quit.addEventListener(MouseEvent.CLICK, F.callback(exit));
+        quit.x = buttonBar.width;
+        buttonBar.addChild(quit);
+
+        buttonBar.x = bounds.width - buttonBar.width;
+        buttonBar.y = toolbox.y - buttonBar.height;
+        addChild(buttonBar);
+
+        _ctrl.local.addEventListener(AVRGameControlEvent.SIZE_CHANGED, function (... _) :void {
+            var bounds :Rectangle = _ctrl.local.getPaintableArea();
+            if (bounds != null) {
+                toolbox.x = bounds.width - toolbox.width;
+                toolbox.y = bounds.height - toolbox.height;
+                buttonBar.x = bounds.width - buttonBar.width;
+                buttonBar.y = toolbox.y - buttonBar.height;
+
+                ToolTipManager.instance.bounds = bounds;
+            }
+        });
+
+        // Set up the ToolTipManager
+        ToolTipManager.instance.screen = this;
+        ToolTipManager.instance.bounds = bounds;
+
         updateAvatar();
+    }
+
+    protected function exit () :void
+    {
+        _ctrl.local.feedback(Messages.en.xlate("m_quit"));
+        _ctrl.player.deactivateGame();
     }
 
     protected function handleAvatarChanged (event :AVRGameRoomEvent) :void
@@ -101,7 +143,6 @@ public class Game extends Sprite
     protected function updateAvatar () :void
     {
         var avatarId :int = _ctrl.player.getAvatarMasterItemId();
-        trace("Avatar changed to " + avatarId);
         if (_ctrl.player.props.get("avatarId") != avatarId) {
             _ctrl.player.props.set("avatarId", avatarId);
         }
@@ -336,6 +377,26 @@ public class Game extends Sprite
         _ctrl.local.feedback("= Collection: " + setName);
         _ctrl.local.feedback("= " + values.join(", "));
     }
+
+    REMOTE function respondLocatePeers (result :Array) :void
+    {
+        _ctrl.local.feedback(Messages.en.xlate("m_locatedHeader"));
+
+        for each (var room :Array in result) {
+            var roomId :int = room[0];
+            var name :String = room[1];
+            var pop :int = room[2];
+            _ctrl.local.feedback(Messages.en.xlate("m_locatedRoom",
+                roomId, name, pop));
+        }
+    }
+
+    [Embed(source="rsrc/search.png")]
+    protected static const SEARCH_ICON :Class;
+    [Embed(source="rsrc/invite.png")]
+    protected static const INVITE_ICON :Class;
+    [Embed(source="rsrc/exit.png")]
+    protected static const EXIT_ICON :Class;
 
     protected var _ctrl :AVRGameControl;
 
