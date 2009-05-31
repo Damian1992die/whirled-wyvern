@@ -12,7 +12,7 @@ import com.whirled.EntityControl;
 public class Thug
     implements Klass
 {
-    public static const CHARGE_BREADTH :int = 200;
+    public static const CHARGE_BREADTH :int = 600;
     public static const CHARGE_LENGTH :int = 400;
     public static const CHARGE_COST :Number = 0.4;
 
