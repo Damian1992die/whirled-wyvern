@@ -30,7 +30,7 @@ public class Server extends ServerObject
         _gameReceiver = new RemoteCaller(_ctrl.game, "c");
 
         _invoker = new BatchInvoker(_ctrl);
-        _invoker.start(200);
+        _invoker.start(500);
     }
 
     protected function getPlayer (playerId :int) :PlayerEntry
@@ -107,8 +107,9 @@ public class Server extends ServerObject
             var room :RoomEntry = getRoom(roomId);
             if (room == null) {
                 room = new RoomEntry();
+                room.ctrl = _ctrl.getRoom(roomId);
+                room.ctrl.addEventListener(AVRGameRoomEvent.SIGNAL_RECEIVED, handleSignal);
                 _rooms[roomId] = room;
-                _ctrl.getRoom(roomId).addEventListener(AVRGameRoomEvent.SIGNAL_RECEIVED, handleSignal);
             }
             room.population = room.population + 1;
         });
@@ -122,7 +123,7 @@ public class Server extends ServerObject
 
         room.population -= 1;
         if (room.population == 0) {
-            _ctrl.getRoom(roomId).removeEventListener(AVRGameRoomEvent.SIGNAL_RECEIVED, handleSignal);
+            room.ctrl.removeEventListener(AVRGameRoomEvent.SIGNAL_RECEIVED, handleSignal);
             delete _rooms[roomId];
         }
     }
@@ -308,13 +309,32 @@ public class Server extends ServerObject
         player.playerReceiver.apply("respondShowSet", setName, result);
     }
 
+    REMOTE function locatePeers (playerId :int) :void
+    {
+        var rooms :Array = []; // of loose Object
+        for each (var room :RoomEntry in _rooms) {
+            rooms.push({
+                roomId: room.ctrl.getRoomId(),
+                name: room.ctrl.getRoomName(),
+                pop: room.population
+            });
+        }
+
+        var top5 :Array = rooms.sortOn("pop", Array.NUMERIC | Array.DESCENDING).splice(0, 5);
+
+        var result :Array = [];
+        for each (var o :Object in top5) {
+            result.push([ o.roomId, o.name, o.pop ]);
+        }
+
+        _invoker.push(F.callback(
+            getPlayer(playerId).playerReceiver.apply, "respondLocatePeers", result));
+    }
+
     /** Maps player ID to scene ID. */
     protected var _players :Dictionary = new Dictionary();
 
     protected var _rooms :Dictionary = new Dictionary();
-
-    /** Maps scene ID to occupant count. */
-    protected var _roomToPopulation :Dictionary = new Dictionary();
 
     protected var _ctrl :AVRServerGameControl;
 
