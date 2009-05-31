@@ -12,18 +12,30 @@ public class PlayerSprite extends WyvernSprite
 
         _manaBar.y = 8;
         _manaBar.x = center(ProgressBar.WIDTH);
-        addChild(_manaBar);
+        _ui.addChild(_manaBar);
 
         if (_ctrl.getMemory("mana") == null) {
             _ctrl.setMemory("mana", 1); // Full mana
         }
     }
 
+    public function setHidden (hidden :Boolean) :void
+    {
+        _ui.visible = !hidden;
+        setupVisual();
+    }
+
+    public function getHidden () :Boolean
+    {
+        return !_ui.visible;
+    }
+
     override protected function setupVisual () :void
     {
-        super.setupVisual();
-
-        _manaBar.y = _healthBar.y + _healthBar.height + 4;
+        if (_ui.visible) {
+            super.setupVisual();
+            _manaBar.y = _healthBar.y + _healthBar.height + 4;
+        }
     }
 
     override protected function tick () :void
