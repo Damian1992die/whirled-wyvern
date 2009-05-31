@@ -22,7 +22,7 @@ public class Codes
 
     /** Broadcasts used since last pack consumption. */
     public static const BROADCASTS_USED :String = NetConstants.makePersistent("b");
-    public static const BROADCAST_USES :int = 3;
+    public static const BROADCAST_USES :int = 7;
 
     public static const KLASS_NAME :Object = {
         thug: "Warrior",
