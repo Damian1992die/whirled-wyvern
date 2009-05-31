@@ -39,13 +39,16 @@ public class WyvernSprite extends Sprite
     {
         _ctrl = ctrl;
 
+        _ui = new Sprite();
+        addChild(_ui);
+
         _container = new Sprite();
         //_container.width = 32;
         //_container.height = 32;
         //_container.scaleX = 2;
         //_container.scaleY = 2;
 
-        addChild(_container);
+        _ui.addChild(_container);
 
         _xpField = TextFieldUtil.createField("",
             { textColor: 0xffffff, selectable: false,
@@ -53,10 +56,10 @@ public class WyvernSprite extends Sprite
             { font: "_sans", size: 10, bold: true });
         _xpField.y = MAX_HEIGHT;
         makeNonScaling(_xpField);
-        addChild(_xpField);
+        _ui.addChild(_xpField);
 
         _healthBar.x = center(ProgressBar.WIDTH);
-        addChild(_healthBar);
+        _ui.addChild(_healthBar);
 
         Command.bind(_ctrl, ControlEvent.APPEARANCE_CHANGED, setupVisual);
         Command.bind(_ctrl, ControlEvent.MEMORY_CHANGED, handleMemory);
@@ -383,7 +386,9 @@ public class WyvernSprite extends Sprite
         var isMoving :Boolean = _ctrl.isMoving();
 
         _healthBar.y = MAX_HEIGHT - _container.height - bounciness - _healthBar.height;
-        _ctrl.setHotSpot(MAX_WIDTH/2, MAX_HEIGHT, _container.height+bounciness+_healthBar.height+20);
+        if (_ui.visible) {
+            _ctrl.setHotSpot(MAX_WIDTH/2, MAX_HEIGHT, _container.height+bounciness+_healthBar.height+20);
+        }
 
         // make sure we're oriented correctly
         // (We discard nearly all the orientation information and only care if we're
@@ -433,6 +438,8 @@ public class WyvernSprite extends Sprite
     protected var _ctrl :ActorControl;
 
     protected var _container :Sprite;
+
+    protected var _ui :Sprite; // Holds everything but text messages
 
     protected var _actor :DisplayObject;
 
