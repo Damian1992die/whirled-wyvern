@@ -137,6 +137,7 @@ public class Server extends ServerObject
                 var victimId :int = data[1];
                 var level :int = Math.min(data[2], 120); // Capped at 120
                 var mode :int = data[3];
+                var room :RoomSubControlServer = _ctrl.getRoom(event.roomId);
 
                 // A hero should be awarded
                 if (mode == WyvernConstants.PLAYER_KILLED_MONSTER ||
@@ -144,6 +145,10 @@ public class Server extends ServerObject
 
                     if (killerId in _players) {
                         var player :PlayerSubControlServer = _ctrl.getPlayer(killerId);
+
+                        if (room.getAvatarInfo(killerId).isIdle) {
+                            return; // AFK, ignore
+                        }
 
                         if (!contains("avatar", player.props.get("avatarId") as int)) {
                             return; // Unapproved avatar, ignore
