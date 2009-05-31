@@ -156,7 +156,7 @@ public class Inventory extends Sprite
             return;
         }
 
-        if (_dragged.container.dropTarget == _trashCan) {
+        if (_dragged.container.dropTarget == _trashCan || event.ctrlKey) {
             destroy(_dragged.bag);
             _trashCan.bitmapData = _iconTrashEmpty;
 
