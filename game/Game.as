@@ -124,6 +124,8 @@ public class Game extends Sprite
             }
         });
 
+        _ctrl.player.addEventListener(AVRGamePlayerEvent.TASK_COMPLETED, onTaskCompleted);
+
         // Set up the ToolTipManager
         ToolTipManager.instance.screen = this;
         ToolTipManager.instance.bounds = bounds;
@@ -141,6 +143,13 @@ public class Game extends Sprite
     {
         if (event.value == _ctrl.player.getPlayerId()) {
             MethodQueue.callLater(updateAvatar);
+        }
+    }
+
+    protected function onTaskCompleted (event :AVRGamePlayerEvent) :void
+    {
+        if (event.name == "kill") {
+            new GOLD_SOUND().play();
         }
     }
 
@@ -401,6 +410,9 @@ public class Game extends Sprite
     protected static const INVITE_ICON :Class;
     [Embed(source="rsrc/exit.png")]
     protected static const EXIT_ICON :Class;
+
+    [Embed(source="rsrc/gold.mp3")]
+    protected static const GOLD_SOUND :Class;
 
     protected var _ctrl :AVRGameControl;
 

@@ -154,7 +154,7 @@ public class Server extends ServerObject
                         var now :int = flash.utils.getTimer();
 
                         if (now - entry.lastKill > level*1000/3) {
-                            player.completeTask("hero_"+heroStat, level/120); // TODO: Tweak
+                            player.completeTask("kill", level/120); // TODO: Tweak
                             player.props.set(heroStat+Codes.LEVELS, int(player.props.get(heroStat+Codes.LEVELS))+level);
                             player.props.set(heroStat+Codes.COUNT, int(player.props.get(heroStat+Codes.COUNT))+1);
 
