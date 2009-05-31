@@ -51,14 +51,18 @@ public class Game extends Sprite
 
         var padding :int = 5;
 
-        _showFeed = new CheckBox();
-        _showFeed.label = "Show Wyvern Feed";
-        _showFeed.selected = true;
-        _showFeed.x = padding;
-        _showFeed.y = 4;
+        var showFeed :CheckBox = new CheckBox();
+        showFeed.label = "Show Wyvern Feed";
+        showFeed.selected = !_ctrl.player.props.get(Codes.HIDE_FEED);
+        showFeed.x = padding;
+        showFeed.y = 4;
+
+        showFeed.addEventListener(MouseEvent.CLICK, function (... _) :void {
+            _ctrl.player.props.set(Codes.HIDE_FEED, !showFeed.selected);
+        });
 
         var toolbox :Sprite = new Sprite();
-        toolbox.addChild(_showFeed);
+        toolbox.addChild(showFeed);
 
         toolbox.graphics.beginFill(0xf3f3f3);
         toolbox.graphics.drawRect(0, 0, toolbox.width+2*padding, toolbox.height);
@@ -357,7 +361,7 @@ public class Game extends Sprite
 
     REMOTE function feed (text :String) :void
     {
-        if (_showFeed.selected) {
+        if (!_ctrl.player.props.get(Codes.HIDE_FEED)) {
             _ctrl.local.feedback(text);
         }
     }
@@ -399,8 +403,6 @@ public class Game extends Sprite
     protected static const EXIT_ICON :Class;
 
     protected var _ctrl :AVRGameControl;
-
-    protected var _showFeed :CheckBox;
 
     /** Saved !announce message. */
     protected var _scrollMessage :String;

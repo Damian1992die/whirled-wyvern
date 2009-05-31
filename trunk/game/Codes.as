@@ -6,6 +6,8 @@ public class Codes
 {
     public static const CREDIT_STEP :int = 600;
 
+    public static const HIDE_FEED :String = NetConstants.makePersistent("hideFeed");
+
     public static const CREDITS :String = NetConstants.makePersistent("credits");
     public static const CREDITS_LIFETIME :String = NetConstants.makePersistent("creditsLifetime");
     public static const AGE :String = NetConstants.makePersistent("age");
