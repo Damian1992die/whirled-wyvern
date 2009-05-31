@@ -1,5 +1,10 @@
 package klass {
 
+import flash.display.*;
+import flash.geom.*;
+import flash.media.Sound;
+import flash.utils.setTimeout;
+
 import com.whirled.AvatarControl;
 
 public class Sneak
@@ -25,6 +30,11 @@ public class Sneak
         return "Bandit";
     }
 
+    public function getSpecialName () :String
+    {
+        return "Vanish";
+    }
+
     public function getMultiplier (itemType :int) :Number
     {
         switch (itemType) {
@@ -40,13 +50,37 @@ public class Sneak
     {
         var mana :Number = sprite.getMana();
         if (mana >= 0.4) {
-            ctrl.setMemory("mana", mana-0.4);
-            sprite.effect({text: "TODO"});
+            if (ctrl.hasControl()) {
+                ctrl.setMemory("mana", mana-0.4);
+            }
+
+            if (!sprite.getHidden()) {
+                ctrl.setHotSpot(600/2, 400, 500000);
+                sprite.setHidden(true);
+                setTimeout(function () :void {
+                    sprite.visible = true;
+                    _appearSound.play();
+                    sprite.setHidden(false);
+                }, 10000);
+                _vanishSound.play();
+            }
+
             return true;
         } else {
+            if (ctrl.hasControl()) {
+                sprite.echo("Damn, I need energy!");
+            }
             return false;
         }
     }
+
+    [Embed(source="../rsrc/sneak_special.mp3")]
+    protected static const VANISH_SOUND :Class;
+    protected var _vanishSound :Sound = new VANISH_SOUND as Sound;
+
+    [Embed(source="../rsrc/SneakHeal.mp3")]
+    protected static const APPEAR_SOUND :Class;
+    protected var _appearSound :Sound = new APPEAR_SOUND as Sound;
 }
 
 }

@@ -16,6 +16,8 @@ public interface Klass
 
     function getMultiplier (itemType :int) :Number;
 
+    function getSpecialName () :String;
+
     function handleSpecial (ctrl :AvatarControl, sprite :PlayerSprite) :Boolean;
 }
 

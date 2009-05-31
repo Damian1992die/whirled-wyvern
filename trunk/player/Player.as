@@ -143,10 +143,9 @@ public class Player_@KLASS@ extends Sprite
             states.push(state);
         }
         _ctrl.registerStates(states.sort());
-        _ctrl.registerActions("Inventory");
+        _ctrl.registerActions("Inventory", _klass.getSpecialName());
 
         _ctrl.addEventListener(ControlEvent.ACTION_TRIGGERED, handleAction);
-        _ctrl.addEventListener(ControlEvent.ACTION_TRIGGERED, handleSpecial);
         Command.bind(_ctrl, ControlEvent.MEMORY_CHANGED, handleMemory);
         _ctrl.addEventListener(ControlEvent.MESSAGE_RECEIVED, handleMessage);
 
@@ -234,6 +233,10 @@ public class Player_@KLASS@ extends Sprite
 
                     case WyvernConstants.EVENT_DIE:
                         _soundDie.play();
+                        if (_ctrl.hasControl() && _ctrl.getMemory("hasDied")) {
+                            GraphicsUtil.feedback(_ctrl, "Oh the humanity! Luckily, death in Wyvern is only a minor set back. You can get back on your feet by walking next to a resurrection shrine!");
+                            _ctrl.setMemory("hasDied", true);
+                        }
                         break;
 
                     case WyvernConstants.EVENT_REVIVE:
@@ -278,12 +281,13 @@ public class Player_@KLASS@ extends Sprite
                     break;
             }
         }
-    }
 
-    public function handleSpecial (event :ControlEvent) :void
-    {
-        if (event.name == "Special Attack") {
-            _ctrl.doBatch(_klass.handleSpecial, _ctrl, _quest);
+        if (_svc.getState() != WyvernConstants.STATE_DEAD) {
+            switch (event.name) {
+                case _klass.getSpecialName():
+                    _klass.handleSpecial(_ctrl, _quest);
+                    break;
+            }
         }
     }
 
@@ -316,7 +320,7 @@ public class Player_@KLASS@ extends Sprite
                 });
             } else {
                 args = args.map(function (o :*) :* {
-                    return ("getIdent" in o) ? o.getIdent() : o;
+                    return (o != null && "getIdent" in o) ? o.getIdent() : o;
                 });
                 _ctrl.sendMessage("call", [name].concat(args));
             }
