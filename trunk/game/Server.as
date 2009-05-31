@@ -6,6 +6,7 @@ import flash.utils.getTimer;
 import com.threerings.util.Log;
 import com.threerings.util.MethodQueue;
 
+import aduros.net.BatchInvoker;
 import aduros.net.REMOTE;
 import aduros.net.RemoteCaller;
 import aduros.net.RemoteProvider;
@@ -27,6 +28,9 @@ public class Server extends ServerObject
 
         new RemoteProvider(_ctrl.game, "s", F.konst(this));
         _gameReceiver = new RemoteCaller(_ctrl.game, "c");
+
+        _invoker = new BatchInvoker(_ctrl);
+        _invoker.start(200);
     }
 
     protected function getPlayer (playerId :int) :PlayerEntry
@@ -53,7 +57,7 @@ public class Server extends ServerObject
 
     public function handlePlayerQuit (event :AVRGameControlEvent) :void
     {
-        var playerId :int = event.value as int;
+        var playerId :int = int(event.value);
         var player :PlayerEntry = getPlayer(playerId);
 
         var delta :int = getTimer() - player.joinedOn;
@@ -75,7 +79,7 @@ public class Server extends ServerObject
     {
         _ctrl.doBatch(function () :void {
             var playerId :int = event.playerId;
-            var roomId :int = event.value as int;
+            var roomId :int = int(event.value);
 
             var player :PlayerEntry = getPlayer(playerId);
             if (player == null) {
@@ -202,7 +206,7 @@ public class Server extends ServerObject
     protected function handlePlayerChanged (
         player :PlayerSubControlServer, event :PropertyChangedEvent) :void
     {
-        _ctrl.doBatch(checkStat, player, event.name);
+        _invoker.push(F.callback(checkStat, player, event.name));
     }
 
     protected function checkStat (player :PlayerSubControlServer, stat :String) :void
@@ -243,7 +247,7 @@ public class Server extends ServerObject
     {
         var player :PlayerSubControlServer = _ctrl.getPlayer(playerId);
 
-        player.doBatch(function () :void {
+        _ctrl.doBatch(function () :void {
             player.awardPrize(klass);
             player.completeTask("chosen", 0.2); // Let them know we mean business
             player.props.set(Codes.HAS_INSTALLED, true);
@@ -255,7 +259,7 @@ public class Server extends ServerObject
 
     REMOTE function broadcast (playerId :int, message :Array) :void
     {
-        _gameReceiver.apply("broadcast", [ getPlayerName(playerId) ].concat(message));
+        _invoker.push(F.callback(_gameReceiver.apply, "broadcast", [ getPlayerName(playerId) ].concat(message)));
     }
 
     REMOTE function addToSet (playerId :int, setName :String, value :int) :void
@@ -266,8 +270,8 @@ public class Server extends ServerObject
         _ctrl.props.setIn("@set:"+setName, value, true, true);
 
         // Also kick
-        if (setName == "ban") {
-            var player :PlayerEntry = getPlayer(playerId);
+        if (setName == "ban" && !Codes.isAdmin(value)) {
+            var player :PlayerEntry = getPlayer(value);
             if (player != null) {
                 player.ctrl.deactivateGame();
             }
@@ -316,6 +320,8 @@ public class Server extends ServerObject
 
     /** For calling functions on the client. */
     protected var _gameReceiver :RemoteCaller;
+
+    protected var _invoker :BatchInvoker;
 }
 
 }
