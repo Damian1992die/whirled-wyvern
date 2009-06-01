@@ -3,6 +3,7 @@ package {
 public class PlayerCodes
 {
     public static const MAX_LEVEL :int = 120;
+    public static const MAX_XP :int = WyvernUtil.getXp(MAX_LEVEL);
 
     public static const LABEL_TO_STATE :Object = {
         Attack: WyvernConstants.STATE_ATTACK,
