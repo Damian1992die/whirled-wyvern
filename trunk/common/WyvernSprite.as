@@ -350,7 +350,7 @@ public class WyvernSprite extends Sprite
         }
     }
 
-    public function getXP () :int
+    public function getXP () :Number
     {
         return _ctrl.getMemory("xp") as Number;
     }
