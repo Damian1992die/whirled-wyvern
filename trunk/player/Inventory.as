@@ -294,9 +294,9 @@ public class Inventory extends Sprite
 
     protected function updateStatus () :void
     {
-        var xp :int = _ctrl.getMemory("xp") as int;
+        var xp :Number = _ctrl.getMemory("xp") as Number;
         var level :int = WyvernUtil.getLevel(xp);
-        var start :int = WyvernUtil.getXp(level);
+        var start :Number = WyvernUtil.getXp(level);
 
         var text :String = "Attack: " + Math.round(getPower()) +
             ", Defence: " + Math.round(getDefence()) + "\n" +
