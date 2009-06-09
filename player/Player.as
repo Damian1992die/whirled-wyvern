@@ -97,13 +97,15 @@ public class Player_@KLASS@ extends Sprite
             awardXP: function (amount :int) :void {
                 amount *= 2; // TODO: Migrate to WyvernSprite on next batch upload
 
-                var oldXp :Number = Number(_ctrl.getMemory("xp"));
-                var oldLevel :int = WyvernUtil.getLevel(oldXp);
-                var nowXp :Number = Math.min(oldXp+amount, PlayerCodes.MAX_XP);
+                if (amount > 0) {
+                    var oldXp :Number = Number(_ctrl.getMemory("xp"));
+                    var oldLevel :int = WyvernUtil.getLevel(oldXp);
+                    var nowXp :Number = Math.min(oldXp+amount, PlayerCodes.MAX_XP+1);
 
-                _ctrl.setMemory("xp", nowXp);
-                if (oldLevel < WyvernUtil.getLevel(nowXp)) {
-                    _quest.effect({event: WyvernConstants.EVENT_LEVELUP});
+                    _ctrl.setMemory("xp", nowXp);
+                    if (oldLevel < WyvernUtil.getLevel(nowXp)) {
+                        _quest.effect({event: WyvernConstants.EVENT_LEVELUP});
+                   }
                 }
             },
 

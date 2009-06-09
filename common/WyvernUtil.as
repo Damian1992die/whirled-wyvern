@@ -107,13 +107,13 @@ public class WyvernUtil
         }
     }
 
-    public static function getLevel (xp :int) :int
+    public static function getLevel (xp :Number) :int
     {
         return Math.log((M+xp)/M)*K + 1;
         //return Math.pow(xp, K)/M + 1;
     }
 
-    public static function getXp (level :int) :int
+    public static function getXp (level :int) :Number
     {
         return Math.exp((level-1)/K)*M - M;
     }
