@@ -78,7 +78,8 @@ public class Game extends Sprite
         var timer :Timer = new Timer(10000);
         Command.bind(timer, TimerEvent.TIMER, setAvatarEnabled, true);
         Command.bind(_ctrl, Event.UNLOAD, timer.stop);
-        Command.bind(loaderInfo.loader, Event.UNLOAD, timer.stop);
+        // Causes error on FP 9
+        //Command.bind(loaderInfo.loader, Event.UNLOAD, timer.stop);
         timer.start();
         setAvatarEnabled(true);
 
