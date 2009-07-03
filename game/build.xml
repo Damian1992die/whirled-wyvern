@@ -3,6 +3,9 @@
   <property name="app.name" value="Game"/>
   <property name="app.enable-server-agent" value="true"/>
 
+  <property name="app.source-dir" value="src"/>
+  <property name="app.library-dir" value="lib"/>
+
   <import file="../lib/build-import.xml"/>
 
 </project>

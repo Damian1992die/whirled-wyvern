@@ -405,14 +405,14 @@ public class Game extends Sprite
         }
     }
 
-    [Embed(source="rsrc/search.png")]
+    [Embed(source="../rsrc/search.png")]
     protected static const SEARCH_ICON :Class;
-    [Embed(source="rsrc/invite.png")]
+    [Embed(source="../rsrc/invite.png")]
     protected static const INVITE_ICON :Class;
-    [Embed(source="rsrc/exit.png")]
+    [Embed(source="../rsrc/exit.png")]
     protected static const EXIT_ICON :Class;
 
-    [Embed(source="rsrc/gold.mp3")]
+    [Embed(source="../rsrc/gold.mp3")]
     protected static const GOLD_SOUND :Class;
 
     protected var _ctrl :AVRGameControl;
