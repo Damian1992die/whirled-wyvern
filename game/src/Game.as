@@ -33,6 +33,7 @@ import com.whirled.*;
 
 public class Game extends Sprite
 {
+    public static var metrics :Metrics;
     //DefaultCheckBoxSkins;
 
     public function Game ()
@@ -42,6 +43,8 @@ public class Game extends Sprite
         if ( ! _ctrl.isConnected()) {
             return;
         }
+
+        metrics = new Metrics(_ctrl, this, BuildConfig.ANALYTICS_ID);
 
         new RemoteProvider(_ctrl.game, "c", F.konst(this));
         new RemoteProvider(_ctrl.player, "player", F.konst(this));
@@ -93,6 +96,8 @@ public class Game extends Sprite
         var locator :ImageButton = new ImageButton(new SEARCH_ICON(),
             Messages.en.xlate("t_locate"));
         locator.addEventListener(MouseEvent.CLICK, F.callback(_gameService.locatePeers));
+        locator.addEventListener(MouseEvent.CLICK,
+            F.callback(metrics.trackEvent, "Buttons", "locator"));
         //GraphicsUtil.throttleClicks(locator);
         buttonBar.addChild(locator);
 
@@ -100,12 +105,16 @@ public class Game extends Sprite
             Messages.en.xlate("t_invite"));
         invite.addEventListener(MouseEvent.CLICK,
             F.callback(_ctrl.local.showInvitePage, Messages.en.xlate("m_invite")));
+        invite.addEventListener(MouseEvent.CLICK,
+            F.callback(metrics.trackEvent, "Buttons", "invite"));
         invite.x = buttonBar.width;
         buttonBar.addChild(invite);
 
         var quit :ImageButton = new ImageButton(new EXIT_ICON(),
             Messages.en.xlate("t_quit"));
         quit.addEventListener(MouseEvent.CLICK, F.callback(exit));
+        quit.addEventListener(MouseEvent.CLICK,
+            F.callback(metrics.trackEvent, "Buttons", "quit"));
         quit.x = buttonBar.width;
         buttonBar.addChild(quit);
 
@@ -291,6 +300,9 @@ public class Game extends Sprite
             value.push(("getLevel" in svc) ? svc.getLevel() : 0);
             value.push(("getKlassName" in svc) ? svc.getKlassName() : "??");
         }
+
+        metrics.trackEvent("Broadcast",
+            Codes.isAdmin(_ctrl.player.getPlayerId()) ? "admin" : "player");
 
         _gameService.broadcast(value);
     }
