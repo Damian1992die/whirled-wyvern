@@ -92,15 +92,15 @@ public class NewCharacterOverlay extends Sprite
         _description.htmlText = text;
     }
 
-    [Embed(source="rsrc/icon_thug.png")]
+    [Embed(source="../rsrc/icon_thug.png")]
     protected static const ICON_THUG :Class;
-    [Embed(source="rsrc/icon_mage.png")]
+    [Embed(source="../rsrc/icon_mage.png")]
     protected static const ICON_MAGE :Class;
-    [Embed(source="rsrc/icon_sneak.png")]
+    [Embed(source="../rsrc/icon_sneak.png")]
     protected static const ICON_SNEAK :Class;
-    [Embed(source="rsrc/icon_medic.png")]
+    [Embed(source="../rsrc/icon_medic.png")]
     protected static const ICON_MEDIC :Class;
-    [Embed(source="rsrc/icon_mummy.png")]
+    [Embed(source="../rsrc/icon_mummy.png")]
     protected static const ICON_MUMMY :Class;
 
 //    [Embed(source="rsrc/wyvern.ttf", fontWeight="normal", fontName="wyvern", fontFamily="wyvern")]
