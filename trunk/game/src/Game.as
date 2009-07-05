@@ -21,6 +21,7 @@ import com.threerings.util.ValueEvent;
 
 import aduros.display.ToolTipManager;
 import aduros.display.ImageButton;
+import aduros.game.Metrics;
 import aduros.net.REMOTE;
 import aduros.net.RemoteProvider;
 import aduros.net.RemoteProxy;
