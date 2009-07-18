@@ -15,4 +15,4 @@ Then go to each module's directory (game, player, monster...) and run ant.
 
 = Halp! =
 
-There are pages on the Whirled wiki for using this kind of build environment. For Ant help, post to Whirled Coders. If you're reasonably sure you've come across a bug in the build scripts, contact Aduros.
+There are pages on the [http://wiki.whirled.com/Setting_up_your_programming_environment Whirled wiki] for using this kind of build environment. For Ant help, post to Whirled Coders. If you're reasonably sure you've come across a bug in the build scripts, contact Aduros.
