@@ -8,7 +8,7 @@ import flash.text.*;
 import com.whirled.*;
 
 import com.threerings.util.Command;
-import com.threerings.flash.TextFieldUtil;
+import com.threerings.text.TextFieldUtil;
 
 import klass.Klass;
 
