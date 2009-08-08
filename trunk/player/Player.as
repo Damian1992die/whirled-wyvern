@@ -14,7 +14,7 @@ import flash.utils.setTimeout;
 
 import caurina.transitions.Tweener;
 
-import com.threerings.flash.TextFieldUtil;
+import com.threerings.text.TextFieldUtil;
 
 import com.threerings.util.Command;
 

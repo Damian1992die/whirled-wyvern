@@ -17,7 +17,7 @@ import flash.text.TextFieldAutoSize;
 import flash.utils.getTimer; // function import
 import flash.utils.Timer;
 
-import com.threerings.flash.TextFieldUtil;
+import com.threerings.text.TextFieldUtil;
 import com.threerings.util.Command;
 
 import com.whirled.EntityControl;

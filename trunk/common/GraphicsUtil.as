@@ -7,7 +7,7 @@ import flash.text.StyleSheet;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 
-import com.threerings.flash.TextFieldUtil;
+import com.threerings.text.TextFieldUtil;
 
 import com.whirled.EntityControl;
 

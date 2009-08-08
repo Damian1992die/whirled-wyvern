@@ -6,7 +6,7 @@ package {
 import flash.display.*;
 import flash.text.*;
 
-import com.threerings.flash.TextFieldUtil;
+import com.threerings.text.TextFieldUtil;
 
 import com.whirled.ToyControl;
 import com.whirled.ControlEvent;
