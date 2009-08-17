@@ -188,7 +188,7 @@ public class Player_@KLASS@ extends Sprite
         } else if (_quest.getActor() == _ghost || _quest.getActor() == null) {
             _quest.bounciness = 20;
             _quest.bounceFreq = 200;
-            _quest.setActor(_doll);
+            _quest.setActor((_body != null) ? _body : _doll);
             _ctrl.setMoveSpeed(500);
         }
     }
@@ -363,6 +363,14 @@ public class Player_@KLASS@ extends Sprite
     [Embed(source="rsrc/levelup.mp3")]
     protected static const SOUND_LEVELUP :Class;
     protected var _levelupSound :Sound = new SOUND_LEVELUP as Sound;
+
+    /**
+     * EZ modder: To replace the equippable avatar sprite with a static image, put your image
+     * in rsrc/body.png and uncomment the following line.
+     */
+    //[Embed(source="rsrc/body.png")]
+    protected var BODY :Class;
+    protected var _body :Bitmap = (BODY == null) ? null : new BODY();
 
     protected const _klass :Klass = new @KLASS@();
 
