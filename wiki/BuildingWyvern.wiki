@@ -1,6 +1,6 @@
 #summary Documentation on building the Wyvern core code.
 
-This applies to building the Wyvern code game, avatars and pets, as originally written by Aduros.
+This applies to building the Wyvern core game, avatars and pets, as originally written by Aduros.
 
 = Requirements =
 
