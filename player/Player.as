@@ -210,7 +210,7 @@ public class Player_@KLASS@ extends Sprite
             !_svc.gameOpen &&
             event.value[0] == _ctrl.getEntityProperty(EntityControl.PROP_MEMBER_ID)) {
 
-            GraphicsUtil.feedback(_ctrl, "Oh snap! You would have got Whirled coins for that kill, but you weren't logged into Wyvern. Login by clicking a Wyvern game icon or <a href='http://www.whirled.com/#games-d_1254'>visit New Yvern</a> to start earning coins and trophies for playing!");
+            GraphicsUtil.feedback(_ctrl, "Oh snap! You would have got Whirled coins for that kill, but you weren't logged into Wyvern. Login by clicking Wyvern on the Games tab to start earning coins and trophies for playing!");
         }
     }
 
