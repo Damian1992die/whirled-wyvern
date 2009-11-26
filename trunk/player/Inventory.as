@@ -34,7 +34,7 @@ public class Inventory extends Sprite
         Command.bind(this, MouseEvent.ROLL_OUT, endDrag);
         Command.bind(this, MouseEvent.ROLL_OUT, function () :void {
             _trashCan.visible = false;
-            _bankButtons.visible = true;
+//            _bankButtons.visible = true;
         });
 
         addChild(_itemPreview);
@@ -74,29 +74,29 @@ public class Inventory extends Sprite
         _trashCan.visible = false;
         addChild(_trashCan);
 
-        var bankWithdraw :ImageButton = new ImageButton(new ICON_OPEN);
-        bankWithdraw.addEventListener(MouseEvent.CLICK, function (... _) :void {
-            var bank :Object = BankUtil.find(_ctrl);
-            if (bank != null) {
-                BankUtil.replaceMemories(_ctrl, bank.withdraw(_ctrl.getMyEntityId()));
-            } else {
-                GraphicsUtil.feedback(_ctrl, "No bank found! Use this button to load your old character backup. Just find a room with a piggy bank toy or <a href='event:shop-l_10_1243'>get your own!</a>");
-            }
-        });
-        var bankDeposit :ImageButton = new ImageButton(new ICON_SAVE);
-        bankDeposit.addEventListener(MouseEvent.CLICK, function (... _) :void {
-            var bank :Object = BankUtil.find(_ctrl);
-            if (bank != null) {
-                bank.deposit(_ctrl.getMyEntityId(), _ctrl.getMemories());
-            } else {
-                GraphicsUtil.feedback(_ctrl, "No bank found! Use this button to save a new character backup. Just find a room with a piggy bank toy or <a href='event:shop-l_10_1243'>get your own!</a>");
-            }
-        });
-        bankDeposit.x = 32+8;
-        _bankButtons.addChild(bankWithdraw);
-        _bankButtons.addChild(bankDeposit);
-        _bankButtons.x = this.width - (2*32+8);
-        addChild(_bankButtons);
+//        var bankWithdraw :ImageButton = new ImageButton(new ICON_OPEN);
+//        bankWithdraw.addEventListener(MouseEvent.CLICK, function (... _) :void {
+//            var bank :Object = BankUtil.find(_ctrl);
+//            if (bank != null) {
+//                BankUtil.replaceMemories(_ctrl, bank.withdraw(_ctrl.getMyEntityId()));
+//            } else {
+//                GraphicsUtil.feedback(_ctrl, "No bank found! Use this button to load your old character backup. Just find a room with a piggy bank toy or <a href='event:shop-l_10_1243'>get your own!</a>");
+//            }
+//        });
+//        var bankDeposit :ImageButton = new ImageButton(new ICON_SAVE);
+//        bankDeposit.addEventListener(MouseEvent.CLICK, function (... _) :void {
+//            var bank :Object = BankUtil.find(_ctrl);
+//            if (bank != null) {
+//                bank.deposit(_ctrl.getMyEntityId(), _ctrl.getMemories());
+//            } else {
+//                GraphicsUtil.feedback(_ctrl, "No bank found! Use this button to save a new character backup. Just find a room with a piggy bank toy or <a href='event:shop-l_10_1243'>get your own!</a>");
+//            }
+//        });
+//        bankDeposit.x = 32+8;
+//        _bankButtons.addChild(bankWithdraw);
+//        _bankButtons.addChild(bankDeposit);
+//        _bankButtons.x = this.width - (2*32+8);
+//        addChild(_bankButtons);
 
         _helpText.y = _bags[MAX_BAGS-1].y + Doll.SIZE + 8;
         addChild(_helpText);
@@ -178,7 +178,7 @@ public class Inventory extends Sprite
 
             } else {
                 _trashCan.visible = false;
-                _bankButtons.visible = true;
+//                _bankButtons.visible = true;
             }
         }
 
@@ -254,7 +254,7 @@ public class Inventory extends Sprite
             _statusText.visible = false;
 
             _trashCan.visible = true;
-            _bankButtons.visible = false;
+//            _bankButtons.visible = false;
         }
     }
 
@@ -265,7 +265,7 @@ public class Inventory extends Sprite
         _statusText.visible = true;
 
         _trashCan.visible = (_dragged != null);
-        _bankButtons.visible = !_trashCan.visible;
+//        _bankButtons.visible = !_trashCan.visible;
     }
 
     protected function handleMemory (event :ControlEvent) :void
@@ -474,11 +474,11 @@ public class Inventory extends Sprite
     protected var _attackSoundDefault :Sound = Sound(new SOUND_FIST());
 
     // Bank stuff
-    [Embed(source="rsrc/document-open.png")]
-    protected static const ICON_OPEN :Class;
-    [Embed(source="rsrc/document-save.png")]
-    protected static const ICON_SAVE :Class;
-    protected var _bankButtons :Sprite = new Sprite();
+//    [Embed(source="rsrc/document-open.png")]
+//    protected static const ICON_OPEN :Class;
+//    [Embed(source="rsrc/document-save.png")]
+//    protected static const ICON_SAVE :Class;
+//    protected var _bankButtons :Sprite = new Sprite();
 
     protected var _bags :Array;
     protected var _equipment :Array = []; // Maps slots to memory bags
