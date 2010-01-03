@@ -92,6 +92,12 @@ public class Codes
             throw new Error("Invalid set name: " + setName);
         }
     }
+
+    public static function isLandingRoom (roomId :int) :Boolean
+    {
+        return roomId == 175733 // Old Wyvern
+            || roomId == 4505243; // New Wyvern
+    }
 }
 
 }

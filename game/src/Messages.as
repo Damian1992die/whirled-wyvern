@@ -8,6 +8,7 @@ public class Messages
         t_invite: "Invite friends to play",
         t_locate: "Find active rooms",
         t_quit: "Quit Wyvern",
+        t_inventory: "Show inventory",
 
         m_locatedHeader: "== Current Top 5 Dungeons:",
         m_locatedRoom: "{2} players in {1}: http://www.whirled.com/#world-s{0}",

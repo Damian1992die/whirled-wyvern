@@ -94,12 +94,22 @@ public class Game extends Sprite
 
         var buttonBar :Sprite = new Sprite();
         
+        var inventory :ImageButton = new ImageButton(new INVENTORY_ICON(),
+            Messages.en.xlate("t_inventory"));
+        inventory.addEventListener(MouseEvent.CLICK,
+            F.callback(_ctrl.player.playAvatarAction, "Inventory"));
+        inventory.addEventListener(MouseEvent.CLICK,
+            F.callback(metrics.trackEvent, "Buttons", "inventory"));
+        inventory.x = buttonBar.width;
+        buttonBar.addChild(inventory);
+
         var locator :ImageButton = new ImageButton(new SEARCH_ICON(),
             Messages.en.xlate("t_locate"));
         locator.addEventListener(MouseEvent.CLICK, F.callback(_gameService.locatePeers));
         locator.addEventListener(MouseEvent.CLICK,
             F.callback(metrics.trackEvent, "Buttons", "locator"));
         //GraphicsUtil.throttleClicks(locator);
+        locator.x = buttonBar.width;
         buttonBar.addChild(locator);
 
         var invite :ImageButton = new ImageButton(new INVITE_ICON(),
@@ -111,13 +121,13 @@ public class Game extends Sprite
         invite.x = buttonBar.width;
         buttonBar.addChild(invite);
 
-        var quit :ImageButton = new ImageButton(new EXIT_ICON(),
-            Messages.en.xlate("t_quit"));
-        quit.addEventListener(MouseEvent.CLICK, F.callback(exit));
-        quit.addEventListener(MouseEvent.CLICK,
-            F.callback(metrics.trackEvent, "Buttons", "quit"));
-        quit.x = buttonBar.width;
-        buttonBar.addChild(quit);
+//        var quit :ImageButton = new ImageButton(new EXIT_ICON(),
+//            Messages.en.xlate("t_quit"));
+//        quit.addEventListener(MouseEvent.CLICK, F.callback(exit));
+//        quit.addEventListener(MouseEvent.CLICK,
+//            F.callback(metrics.trackEvent, "Buttons", "quit"));
+//        quit.x = buttonBar.width;
+//        buttonBar.addChild(quit);
 
         buttonBar.x = bounds.width - buttonBar.width;
         buttonBar.y = toolbox.y - buttonBar.height;
@@ -204,7 +214,7 @@ public class Game extends Sprite
                 }
             });
 
-        } else {
+        } else if (!Codes.isLandingRoom(_ctrl.player.getRoomId())) {
             // Give them the first character free
             var tint :Sprite = new Sprite();
             tint.graphics.beginFill(0);
@@ -422,8 +432,10 @@ public class Game extends Sprite
     protected static const SEARCH_ICON :Class;
     [Embed(source="../rsrc/invite.png")]
     protected static const INVITE_ICON :Class;
-    [Embed(source="../rsrc/exit.png")]
-    protected static const EXIT_ICON :Class;
+//    [Embed(source="../rsrc/exit.png")]
+//    protected static const EXIT_ICON :Class;
+    [Embed(source="../rsrc/inventory.png")]
+    protected static const INVENTORY_ICON :Class;
 
     [Embed(source="../rsrc/gold.mp3")]
     protected static const GOLD_SOUND :Class;
