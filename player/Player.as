@@ -235,7 +235,7 @@ public class Player_@KLASS@ extends Sprite
 
                     case WyvernConstants.EVENT_DIE:
                         _soundDie.play();
-                        if (_ctrl.hasControl() && _ctrl.getMemory("hasDied")) {
+                        if (_ctrl.hasControl() && _ctrl.getMemory("hasDied") == null) {
                             GraphicsUtil.feedback(_ctrl, "Oh the humanity! Luckily, death in Wyvern is only a minor set back. You can get back on your feet by walking next to a resurrection shrine!");
                             _ctrl.setMemory("hasDied", true);
                         }
