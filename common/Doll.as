@@ -30,7 +30,7 @@ public class Doll extends Bitmap
         smoothing = true;
     }
 
-    [Embed(source="rsrc/sheet.png")]
+    [Embed(source="sheet.png")]
     protected static const SHEET :Class;
 
     protected static var _sheet :BitmapData = (new SHEET() as Bitmap).bitmapData;

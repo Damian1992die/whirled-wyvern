@@ -13,6 +13,8 @@ public class Items
     public static const GLOVES :int = 5;
     public static const HAND :int = 6;
 
+    public static const SLOT_COUNT :int = 7;
+
     // Item categories, for class-based bonuses
     public static const NONE :int = -1;
     public static const ARCANE :int = 0;
@@ -466,6 +468,17 @@ public class Items
         var power :Number =  spread*r*r*r + base;
 
         return randomItem(Math.round(power));
+    }
+
+    /** Return an item ID from a sprite. Note that multiple items can share the same sprite, so this is only a helpful shortcut if you know what you're doing. */
+    public static function findBySprite (sprite :int) :int
+    {
+        for (var item :int = 0; item < TABLE.length; ++item) {
+            if (TABLE[item][0] == sprite) {
+                return item;
+            }
+        }
+        return -1;
     }
 }
 
