@@ -72,7 +72,7 @@ public class Monster_@MONSTER_NAME@ extends Sprite
                 }
             },
 
-            hasTrait: function () :Boolean {
+            hasTrait: function (trait :int) :Boolean {
                 return false; // TODO?
             },
 
