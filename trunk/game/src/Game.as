@@ -347,6 +347,10 @@ public class Game extends Sprite
                             _ctrl.local.feedback("Avatar ID: " + _ctrl.player.getAvatarMasterItemId());
                             break;
 
+                        case "version":
+                            _ctrl.local.feedback("Wyvern compiled on " + BuildConfig.WHEN + ", debug=" + BuildConfig.DEBUG);
+                            break;
+
                         case "add":
                             tokens = command[2].match(/(\w*?)\s+(.*)/);
                             Codes.requireAdmin(chatterId);
