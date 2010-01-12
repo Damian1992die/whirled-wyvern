@@ -365,7 +365,11 @@ public class Game extends Sprite
                             Codes.requireAdmin(chatterId);
                             Codes.requireValidSet(command[2]);
                             _gameService.requestShowSet(command[2]);
+                            break;
 
+                        case "approve":
+                            Codes.requireAdmin(chatterId);
+                            _gameService.addToSet("avatar", _ctrl.player.getAvatarMasterItemId());
                             break;
 
                         default:
