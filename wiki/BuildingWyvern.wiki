@@ -6,7 +6,7 @@ This applies to building the Wyvern core game, avatars and pets, as originally w
 
  * Flex SDK
  * Whirled SDK
- * Ant
+ * Ant (If you're on Windows, [http://code.google.com/p/winant/ WinAnt] provides a nice installer)
 
 For building Monsters:
  * Imagemagick (For generating the shop thumbnail. This is probably more trouble than it's  worth to get working on Windows, so just comment it out from Monster's build.xml)
